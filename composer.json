@@ -1,0 +1,34 @@
+{
+    "name": "mudasobwa/eblo",
+    "description": "The REST service for running a distributed blog",
+    "require": {
+        "silex/silex": "~1.2",
+        "mustangostang/spyc": "*@dev",
+        "mudasobwa/typogrowphp": "*@dev",
+        "mudasobwa/markright": "*@dev"
+    },
+    "require-dev": {
+        "behat/behat": "*@dev"
+    },
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Alexei Matyushkin",
+            "email": "am@mudasobwa.ru"
+        }
+    ],
+    "source": {
+      "url": "git://github.com/mudasobwa/eblo.git",
+             "type": "git",
+             "reference": "master"
+    },
+    "autoload": {
+      "psr-4" : {
+        "Mudasobwa\\Eblo\\" : "src"
+      }
+    },
+    "config": {
+      "bin-dir": "bin/"
+    }
+
+}

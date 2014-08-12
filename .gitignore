@@ -1,0 +1,5 @@
+.idea/**
+vendor/**
+bin/behat
+composer.lock
+p/**
