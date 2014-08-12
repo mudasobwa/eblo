@@ -28,6 +28,19 @@ $app->error(function (\Exception $e, $code) {
 });
 */
 
+/*
+ * Setting cookie: http://stackoverflow.com/questions/13021440/silex-set-cookie
+	$dt = new \DateTime();
+	$dt->modify("+1 year");
+	$c = new Cookie("juniorkupon_letoltve", "1", $dt);
+	$r = new Response(file_get_contents(ROOT . "/data/kupon.pdf"), 200, array("Content-Type" => "application/pdf"));
+	$r->headers->setCookie($c);
+ * */
+
+/*
+ * CACHE: http://stackoverflow.com/questions/829126/how-to-implement-a-php-html-cache
+ */
+
 $app->get('/', function (Silex\Application $app) {
 	$subRequest = Request::create('/pp/★', 'GET');
 	return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST);;
