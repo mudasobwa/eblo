@@ -1,4 +1,4 @@
-*eblo* is another shortage of <s>w</s>eblo<s>g</s>
+*eblo* is another abridgement of w̶eblog̶
 ==================================================
 
 Built on top of [Silex](http://silex.sensiolabs.org/doc/usage.html).
