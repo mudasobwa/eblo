@@ -3,14 +3,14 @@
     "description": "The REST service for running a distributed blog",
     "require": {
         "silex/silex": "~1.2",
-        "mustangostang/spyc": "*@dev",
-        "mudasobwa/typogrowphp": "*@dev",
-        "mudasobwa/markright": "*@dev"
+        "mustangostang/spyc": "~0.5@dev",
+        "mudasobwa/typogrowphp": "~0.5@dev",
+        "mudasobwa/markright": "~0.1@dev"
     },
     "require-dev": {
         "behat/behat": "*@dev"
     },
-    "license": "BSD",
+    "license": "MIT",
     "authors": [
         {
             "name": "Alexei Matyushkin",
