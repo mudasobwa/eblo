@@ -56,7 +56,7 @@ $app->error(function (\Exception $e, $code) {
  * CACHE: http://stackoverflow.com/questions/829126/how-to-implement-a-php-html-cache
  */
 
-$app->get('/', function (Silex\Application $app) {
+$app->get('/', function (Silex\Application $app, Request $req) {
 	$subRequest = Request::create('/pp/★', 'GET');
 	return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
 });
@@ -71,25 +71,34 @@ $app->get('/', function (Silex\Application $app) {
  *   - `2000-12-24` for all the posts, dated Dec 24, 2000
  *   - `2000-12-24+2000-12-23-20` for union of posts for Dec 24, 2000 and Dec 23, 2000 (written at 8:00PM)
  *   - **[NYI]** `2000-12-24—2000-12-26` for all the posts, written from Dec 24 to Dec 26, 2000, inclusive (note mdash between dates)
+ *
+ * Accepts `offset` and `length` of the output (defaults to [0,9999])
  */
-$app->get('/p/{id}', function (Silex\Application $app, $id) {
-	$output = [];
+$app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
+	$files = [];
 	foreach(\explode('+', $id) as $file) {
-		$output = \array_merge($output, \array_map('yo', \array_map('file_get_contents', \glob("p/{$file}*"))));
+		$files = \array_merge($files, \glob("p/{$file}*"));
+		if(\count($files) > $offset + $len) {
+			break;
+		}
 	}
 
-	return new Response(implode('<hr class="separator">', $output));
-})->assert('id', $app['fname_regex']);
+	return new Response(implode(
+		'<hr class="separator">',
+		\array_map('yo', \array_map('file_get_contents', \array_slice($files, $offset, $len)))
+	));
+})
+->assert('id', $app['fname_regex'])
+->value('offset', 0)
+->value('len', 9999) // FIXME the app would not return more than this value posts at once
+;
 
-$app->get('/pj/{id}', function (Silex\Application $app, $id) {
+$app->get('/pj/{id}', function (Silex\Application $app, Request $req, $id) {
     if (!file_exists("p/{$id}")) {
         $app->abort(404, "Post {$id} does not exist.");
     }
 
-    $output = file_get_contents("p/{$id}");
-    $r = new JsonResponse(['html' => \Mudasobwa\Markright\Parser::yo($output)]);
-	$r->setEncodingOptions(JSON_UNESCAPED_UNICODE);
-	return $r;
+    return (new JsonResponse(['html' => \Mudasobwa\Markright\Parser::yo(file_get_contents("p/{$id}"))]))->setEncodingOptions(JSON_UNESCAPED_UNICODE);
 })->assert('id', $app['fname_regex']);
 
 /* ================================================================================================ */
@@ -105,23 +114,28 @@ $app->get('/tj', function () {
 
 /** Retrieves the content for the tag specified (directly) */
 $app->get('/t1/{tag}', function (Silex\Application $app, $tag) {
-	$tags = Cache::instance()->tags();
-	if(!isset($tags[$tag]))
+	$tg = Cache::instance()->tags($tag);
+	if(!isset($tg))
 		$app->abort(404, "Tag {$tag} does not exist.");
 
-	$output = \array_map('yo', \array_map('file_get_contents', \array_map('prepend_p', $tags[$tag])));
-	return new Response(\implode('<hr class="separator">', $output));
+	return new Response(
+		\implode(
+			'<hr class="separator">',
+			\array_map('yo', \array_map('file_get_contents', \array_map('prepend_p', $tg)))
+		)
+	);
 });
 
 /** Retrieves the content for the tag specified by forwarding to `/p/A+B+C` notation */
 $app->get('/t2/{tag}', function (Silex\Application $app, $tag) {
-	$subRequest = Request::create('/p/' . \implode('+', Cache::instance()->tags()[$tag]), 'GET');
-	return $app->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+	return $app->handle(
+		Request::create('/p/' . \implode('+', Cache::instance()->tags($tag), 'GET'), HttpKernelInterface::SUB_REQUEST)
+	);
 });
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
 $app->get('/t3/{tag}', function (Silex\Application $app, $tag) {
-	return $app->redirect('/p/' . \implode('+', Cache::instance()->tags()[$tag]));
+	return $app->redirect('/p/' . \implode('+', Cache::instance()->tags($tag)));
 });
 
 
@@ -130,7 +144,7 @@ $app->get('/t3/{tag}', function (Silex\Application $app, $tag) {
 /* ================================================================================================ */
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-$app->get('/s3/{kw}', function (Silex\Application $app, $kw) {
+$app->get('/s3/{kw}', function (Silex\Application $app, Request $req, $kw) {
 	return $app->redirect('/p/' . \implode('+', Cache::instance()->search($kw)));
 });
 

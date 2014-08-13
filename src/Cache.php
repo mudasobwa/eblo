@@ -9,6 +9,7 @@ class CacheAccessException extends \Exception { }
 final class Cache
 {
 	const TAGS = 'config/tags.yml';
+	private $files = null;
 	private $tags = null;
 	private $tag_hash = null;
 
@@ -33,21 +34,33 @@ final class Cache
 	}
 
 /* ================================================================================================ */
+/* ========================               FILES                 =================================== */
+/* ================================================================================================ */
+
+	public function files() {
+		if(is_null($this->files)) {
+			$this->files = \explode("\n", `cd p && ls`);
+		}
+		return $this->files;
+	}
+
+/* ================================================================================================ */
 /* ========================                TAGS                 =================================== */
 /* ================================================================================================ */
 
-	public function tags() {
+	public function tags($tag = null) {
 		if(is_null($this->tag_hash)) {
 			$this->tag_hash = [];
 			foreach($this->tags as $tag_name => $tag_re) {
 				$this->tag_hash[$tag_name] = \explode("\n", \trim(`cd p && grep -Pazor '{$tag_re}' * | cut -d: -f1 | uniq | sort`));
 			}
 		}
-		return $this->tag_hash;
+		return is_null($tag) ? $this->tag_hash : $this->tag_hash[$tag];
 	}
 
-	public function tags_reset() {
+	public function reset() {
 		$this->tag_hash = null;
+		$this->files = null;
 	}
 
 /* ================================================================================================ */
