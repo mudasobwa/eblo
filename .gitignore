@@ -3,3 +3,11 @@ vendor/**
 bin/behat
 composer.lock
 p/**
+
+eblo/bower_components
+node_modules
+dist
+test/temp
+test/bower_components/
+.sass-cache
+.tmp

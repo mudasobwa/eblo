@@ -17,17 +17,14 @@ use \Mudasobwa\Markright\Parser,
 	\Mudasobwa\Eblo\Cache;
 
 // Helpers
-function yo($s) {
-	return Parser::yo($s);
-}
+function yo($s) { return Parser::yo($s); }
+function prepend_p($s) { return 'p/' . $s; }
 
 $app = new Silex\Application();
 
 $app['debug'] = true;
 
 $app['fname_regex'] = '^(\d{4}(\-\d{2}){0,5}\+?)+$';
-
-function prepend_p($s) { return 'p/' . $s; }
 
 /*
 $app->error(function (\Exception $e, $code) {
@@ -75,7 +72,7 @@ $app->get('/', function (Silex\Application $app, Request $req) {
  * Accepts `offset` and `length` of the output (defaults to [0,9999])
  */
 $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
-	$files = [];
+	$files = array();
 	foreach(\explode('+', $id) as $file) {
 		$files = \array_merge($files, \glob("p/{$file}*"));
 		if(\count($files) > $offset + $len) {
@@ -114,9 +111,9 @@ $app->get('/tj', function () {
 
 /** Retrieves the content for the tag specified (directly) */
 $app->get('/t1/{tag}', function (Silex\Application $app, $tag) {
-	$tg = Cache::instance()->tags($tag);
+	$tg = Cache::instance()->tags($app->escape($tag));
 	if(!isset($tg))
-		$app->abort(404, "Tag {$tag} does not exist.");
+		$app->abort(404, "Tag {$app->escape($tag)} does not exist.");
 
 	return new Response(
 		\implode(
@@ -129,13 +126,13 @@ $app->get('/t1/{tag}', function (Silex\Application $app, $tag) {
 /** Retrieves the content for the tag specified by forwarding to `/p/A+B+C` notation */
 $app->get('/t2/{tag}', function (Silex\Application $app, $tag) {
 	return $app->handle(
-		Request::create('/p/' . \implode('+', Cache::instance()->tags($tag), 'GET'), HttpKernelInterface::SUB_REQUEST)
+		Request::create('/p/' . \implode('+', Cache::instance()->tags($app->escape($tag)), 'GET'), HttpKernelInterface::SUB_REQUEST)
 	);
 });
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
 $app->get('/t3/{tag}', function (Silex\Application $app, $tag) {
-	return $app->redirect('/p/' . \implode('+', Cache::instance()->tags($tag)));
+	return $app->redirect('/p/' . \implode('+', Cache::instance()->tags($app->escape($tag))));
 });
 
 
@@ -145,7 +142,7 @@ $app->get('/t3/{tag}', function (Silex\Application $app, $tag) {
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
 $app->get('/s3/{kw}', function (Silex\Application $app, Request $req, $kw) {
-	return $app->redirect('/p/' . \implode('+', Cache::instance()->search($kw)));
+	return $app->redirect('/p/' . \implode('+', Cache::instance()->search($app->escape($kw))));
 });
 
 

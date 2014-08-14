@@ -50,7 +50,7 @@ final class Cache
 
 	public function tags($tag = null) {
 		if(is_null($this->tag_hash)) {
-			$this->tag_hash = [];
+			$this->tag_hash = array();
 			foreach($this->tags as $tag_name => $tag_re) {
 				$this->tag_hash[$tag_name] = \explode("\n", \trim(`cd p && grep -Pazor '{$tag_re}' * | cut -d: -f1 | uniq | sort`));
 			}
@@ -69,7 +69,7 @@ final class Cache
 
 	/** @todo SANITIZE */
 	public function search($kw) {
-		return \explode("\n", \trim(`cd p && grep -Pazor '{$kw}' * | cut -d: -f1 | uniq | sort`));
+		return \explode("\n", \trim(`cd p && grep -Piazor '{$kw}' * | cut -d: -f1 | uniq | sort`));
 	}
 
 }
