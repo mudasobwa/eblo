@@ -11,3 +11,6 @@ test/temp
 test/bower_components/
 .sass-cache
 .tmp
+
+eblo/development.log
+app

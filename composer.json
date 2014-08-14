@@ -4,8 +4,9 @@
     "require": {
         "silex/silex": "~1.2",
         "mustangostang/spyc": "~0.5@dev",
+		"monolog/monolog": ">=1.0.0",
         "mudasobwa/typogrowphp": "~0.5@dev",
-        "mudasobwa/markright": "~0.1@dev"
+        "mudasobwa/markright": ">=0.1.1"
     },
     "require-dev": {
         "behat/behat": "*@dev"
