@@ -55,6 +55,22 @@ class FeatureContext implements SnippetAcceptingContext
     }
 
     /**
+     * @When input string is processed with tinier
+     */
+    public function inputStringIsProcessedWithTinier()
+    {
+        $this->output = Shortener::tiny($this->input);
+    }
+
+    /**
+     * @When result string is processed with untinier
+     */
+    public function resultStringIsProcessedWithUntinier()
+    {
+        $this->output = Shortener::untiny($this->output);
+    }
+
+    /**
      * @Then the result should equal to :arg1
      */
     public function theResultShouldEqualTo($arg1)

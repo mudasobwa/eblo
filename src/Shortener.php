@@ -9,9 +9,22 @@ class ShortenerAccessException extends ShortenerException { }
 
 final class Shortener
 {
-	const SYMBOLS = '0123456789-+';
+    const SYMBOLS = '0123456789[]';
 
-	private function __construct() {
+    const BASE128 = 0;
+    const UTFY = 1;
+
+    private $base;
+
+    private function __construct() {
+        $this->base = array(
+            - 1990 + \ord('A'),
+            \ord('P') - 1,
+            \ord('`') - 1,
+            \ord('¡'),
+            \ord('À'),
+            256
+        );
 	}
 
 	public function __clone() {
@@ -34,30 +47,72 @@ final class Shortener
 /* ========================                PACK                 =================================== */
 /* ================================================================================================ */
 
-	public function sym_2_4_bits($s) {
-		if(\strlen($s) !== 1) {
-			throw new ShortenerException(__METHOD__ . ' failed on [' . $s . '] (not well-sized, must be 1)');
-		}
-		$i = null;
-		switch($s) {
-			case '0': $i = 0; break;
-			case '1': $i = 1; break;
-			case '2': $i = 2; break;
-			case '3': $i = 3; break;
-			case '4': $i = 4; break;
-			case '5': $i = 5; break;
-			case '6': $i = 6; break;
-			case '7': $i = 7; break;
-			case '8': $i = 8; break;
-			case '9': $i = 9; break;
-			case '-': $i = 10; break;
-			case '+': $i = 11; break;
-			default: throw new ShortenerException(__METHOD__ . ' failed on [' . $s . '] (not valid, must be [0-9+-])');
-		}
-		return $i;
-	}
+    private function unichr($u) {
+        return \mb_convert_encoding('&#' . intval($u) . ';', 'UTF-8', 'HTML-ENTITIES');
+    }
 
-	private function __pack_array($s) {
+    private function uniord($u) {
+        return \array_map('intval',
+            \explode(
+                ';',
+                \preg_filter('/[&#]|;$/', '', \mb_encode_numericentity($u, array (0x0, 0xffff, 0, 0xffff), 'UTF-8'))
+            )
+        );
+    }
+
+    private function str_split_unicode($str, $l = 0) {
+        if ($l > 0) {
+            $ret = array();
+            $len = mb_strlen($str, "UTF-8");
+            for ($i = 0; $i < $len; $i += $l) {
+                $ret[] = mb_substr($str, $i, $l, "UTF-8");
+            }
+            return $ret;
+        }
+        return preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    private function __tiny_recurse($arr_or_s, $lvl = 0) {
+        $res = '';
+
+        if (is_array($arr_or_s)) {
+            foreach($arr_or_s as $k => $v) {
+                $res .= $this->unichr(intval($k) + $this->base[$lvl]) . $this->__tiny_recurse($v, $lvl + 1);
+            }
+        } else {
+            foreach(\explode('+', $arr_or_s) as $d) {
+                while(\strlen($d) < 10) { $d .= '-01'; } // make years format comliant
+                $dt = \strtotime(\preg_replace(
+                    '/(\d{4}\-\d{1,2}\-\d{1,2})\-(\d{1,2})\-(\d{1,2})\-(\d{1,2})/',
+                    '\1 \2:\3:\4',
+                    $d)
+                );
+                $res .= $this->unichr(($dt>>16) & 0xFFFF) . $this->unichr($dt & 0xFFFF);
+            }
+        }
+
+        return $res;
+    }
+
+    public function __tiny($s, $method = self::UTFY) {
+        return $this->__tiny_recurse($method = self::UTFY ? $s : $this->__pack_array($s));
+    }
+
+    public function __untiny($s, $method = self::UTFY) {
+        if($method !== self::UTFY) {
+            throw new ShortenerException('Untinying BASE128 is nto yet implemented.');
+        }
+
+        $res = [];
+        foreach($this->str_split_unicode($s, 2) as $d) {
+            $d = $this->uniord($d);
+            if(count($d) < 2) throw new ShortenerException(__METHOD__ . ' :: bad input {$s}, failed on [{$d}].');
+            $res[] = \preg_replace('/(\-00)+$/', '', \date('Y-m-d-H-i-s', ($d[0]<<16) + $d[1]));
+        }
+        return \implode('+', $res);
+    }
+
+    private function __pack_array($s) {
 		$res = array();
 		foreach(\explode('+', $s) as $date) {
 			$d = \explode('-', $date);
@@ -91,16 +146,16 @@ final class Shortener
 		return $this->__pack_recurse($this->__pack_array($s));
 	}
 
-	public function __unserialize($s) {
-		$s = \preg_replace_callback('/\[((?:\d+,?)+)\]/', function($mch) {
-			$c = count($m = \explode(',', $mch[1])); // array of desired catches, like “12,14”
-			return "a:{$c}:{". \implode('',\array_map(function ($s) { return 'i:'.$s.';a:0:{}'; }, $m)) ."}";
-
-		}, $s);
+	private function __unserialize($s) {
+        $s = \preg_replace_callback('/\[((?:\d+,?)+)\]/', function($mch) {
+            $c = count($m = \explode(',', $mch[1])); // array of desired catches, like “12,14”
+            return "a:{$c}:{". \implode('', \array_map(function ($s) { return 'i:'.$s.';a:0:{}'; }, $m)) ."}";
+        }, $s);
+        $s = \preg_replace('/,(\d+),/', ',\1a:0:{},', $s); // fucking years
 		do {
 			$s = \preg_replace_callback('/\[([^\[\]]+)\]/', function($mch) {
 				$c = count($m = \explode(',', $mch[1]));
-				return "a:{$c}:{". \preg_replace('/(\d+)a/', 'i:\1;a', \implode('', $m)) ."}";
+				return "a:{$c}:{". \preg_replace('/0?(\d+)a/', 'i:\1;a', \implode('', $m)) ."}";
 			}, $s, -1, $count);
 		} while ($count);
 		return \unserialize($s);
@@ -132,9 +187,17 @@ final class Shortener
 		return Shortener::instance()->__pack($s);
 	}
 
-	public static function unpack($s) {
-		return Shortener::instance()->__unpack($s);
-	}
+    public static function unpack($s) {
+        return Shortener::instance()->__unpack($s);
+    }
+
+    public static function tiny($s) {
+        return Shortener::instance()->__tiny($s);
+    }
+
+    public static function untiny($s) {
+        return Shortener::instance()->__untiny($s);
+    }
 
 
 
