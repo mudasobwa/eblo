@@ -39,11 +39,11 @@
 		go: function(previous) {
 			if(previous === true) {
 				this.url = this.prev;
-				if(this.$.prev.article != '')
+				if((typeof this.$.prev !== 'undefined') && (this.$.prev.article != ''))
 					this.article = this.$.prev.article;
 			} else {
-				this.url =this.next;
-				if(this.$.next.article != '')
+				this.url = this.next;
+				if((typeof this.$.next !== 'undefined') && (this.$.next.article != ''))
 					this.article = this.$.next.article;
 			}
 			this.$.current.go();
@@ -56,6 +56,8 @@
 	<template>
 		<style>
 			:host {
+				width: 100%;
+				height: 100%;
 				opacity: 0.5;
 				transition: opacity 400ms ease-in-out;
 			}
@@ -77,39 +79,39 @@
 </polymer-element>
 
 <polymer-element name="mudasobwa-content-slider" attributes="url prefetch buttons previcon nexticon">
-	<style>
-		:host {
-			display: block;
-
-			opacity: 0.7;
-			transition: opacity 400ms ease-in-out;
-		}
-		polyfill-next-selector { content: 'table'; }
-		::content table { margin: 0; padding: 0; display: block; }
-		polyfill-next-selector { content: 'table > tbody'; }
-		::content table > tbody { margin: 0; padding: 0; }
-		polyfill-next-selector { content: 'table > tbody > tr'; }
-		::content table > tbody > tr { margin: 0; padding: 0; }
-	</style>
 	<template>
-		<table><tr>
-			<td width="0.2em"> </td>
+		<style>
+			:host {
+				display: block;
+				position: relative;
+				opacity: 0.8;
+				transition: opacity .5s,transform 1s;
+			}
+			div.slider-content { margin: 0 4em; padding: 0; }
+		</style>
+		<div class="slider-container">
 			<template if="{{ buttons == 'prev' || buttons == 'both' }}">
-				<td width="2em"><opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button></td>
-				<td width="0.2em"> </td>
+				<style>
+					div.slider-nav-left { margin: 0; padding: 0; position: absolute; top: 0; left: 0.4em; }
+				</style>
+				<div class="slider-nav-left">
+					<opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button>
+				</div>
+			</template>
+			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
+				<style>
+					div.slider-nav-right { margin: 0; padding: 0; position: absolute; top: 0; right: 0.4em; }
+				</style>
+				<div class="slider-nav-right">
+					<opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button>
+				</div>
 			</template>
 
-			<td>
+			<div class="slider-content">
 				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch="{{ prefetch }}"></mudasobwa-content-loader>
 				<html-echo id="placeholder" html="{{ article }}"></html-echo>
-			</td>
-
-			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
-				<td width="0.2em"> </td>
-				<td width="2em"><opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button></td>
-			</template>
-			<td width="0.2em"> </td>
-		</tr></table>
+			</div>
+		</div>
 	</template>
 	<script>
 	  Polymer('mudasobwa-content-slider', {

@@ -27,13 +27,17 @@
 	<link rel="import" href="bower_components/x-meme/x-meme.html">
 
 	<!-- build:css styles/main.css -->
+	<link rel="stylesheet" href="styles/yaml/core/base.min.css" type="text/css"/>
 	<link rel="stylesheet" href="styles/main.css">
+  	<!--[if lte IE 7]>
+  		<link rel="stylesheet" href="styles/yaml/core/iehacks.min.css" type="text/css"/>
+  	<![endif]-->
 	<!-- endbuild-->
 </head>
 
 <body unresolved>
 
-	<mudasobwa-fortune url="/tr/short_t" prefetch="true" buttons="prev" previcon="refresh"></mudasobwa-fortune>
+	<mudasobwa-fortune url="/tr/short_t" prefetch="false" buttons="prev" previcon="refresh"></mudasobwa-fortune>
 
 	<div style="margin-top: 60px;">&nbsp;</div>
 

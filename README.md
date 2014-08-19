@@ -8,3 +8,7 @@ Uses REST for data retrieval.
 Uses Polymer Components as Frontend.
 
 Uses Github’s hooks for data update.
+
+
+
+TODO: if there is a photo with GEO tags presented on the page, show leaflet.
