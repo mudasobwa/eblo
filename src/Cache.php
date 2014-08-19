@@ -4,11 +4,13 @@ namespace Mudasobwa\Eblo;
 
 require_once 'vendor/autoload.php';
 
-class CacheAccessException extends \Exception { }
+class CacheException extends \Exception { }
+class CacheAccessException extends CacheException { }
 
 final class Cache
 {
 	const TAGS = 'config/tags.yml';
+	const DATADIR = 'p';
 	private $files = null;
 	private $tags = null;
 	private $tag_hash = null;
@@ -39,7 +41,24 @@ final class Cache
 
 	public function files() {
 		if(is_null($this->files)) {
-			$this->files = \explode("\n", `cd p && ls`);
+			$cmd = "ls " . self::DATADIR . "/";
+			$this->files = \explode("\n", `{$cmd}`);
+			\usort($this->files, function($v_1, $v_2) {
+				if ($v_1 === $v_2) { return 0; }
+
+				$v1 = \explode('-', $v_1);
+				$v2 = \explode('-', $v_2);
+
+				if(count($v1) !== 4 || count($v2) !== 4)
+					return 0; // throw new CacheException(__METHOD__ . ' ⇒ everything goes wrong...');
+
+				for($i=0; $i<4; $i++) {
+					if(\intval($v1[$i]) !== \intval($v2[$i]))
+						return \intval($v2[$i]) - \intval($v1[$i]);
+				}
+
+				return 0;
+			});
 		}
 		return $this->files;
 	}

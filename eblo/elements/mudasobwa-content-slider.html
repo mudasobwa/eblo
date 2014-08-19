@@ -26,7 +26,7 @@
   <script>
     Polymer('mudasobwa-content-loader', {
 		created: function() {
-			this.article = '...';
+			this.article = '';
 			this.next = null;
 			this.prev = null;
 		},
@@ -37,7 +37,15 @@
 			this.prev = this.$.current.response.prev;
 		},
 		go: function(previous) {
-			this.url = (previous === true) ? this.prev : this.next;
+			if(previous === true) {
+				this.url = this.prev;
+				if(this.$.prev.article != '')
+					this.article = this.$.prev.article;
+			} else {
+				this.url =this.next;
+				if(this.$.next.article != '')
+					this.article = this.$.next.article;
+			}
 			this.$.current.go();
 		}
     });
@@ -72,6 +80,9 @@
 	<style>
 		:host {
 			display: block;
+
+			opacity: 0.7;
+			transition: opacity 400ms ease-in-out;
 		}
 		polyfill-next-selector { content: 'table'; }
 		::content table { margin: 0; padding: 0; display: block; }
@@ -84,7 +95,7 @@
 		<table><tr>
 			<td width="0.2em"> </td>
 			<template if="{{ buttons == 'prev' || buttons == 'both' }}">
-				<td><opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button></td>
+				<td width="2em"><opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button></td>
 				<td width="0.2em"> </td>
 			</template>
 
@@ -95,7 +106,7 @@
 
 			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
 				<td width="0.2em"> </td>
-				<td><opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button></td>
+				<td width="2em"><opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button></td>
 			</template>
 			<td width="0.2em"> </td>
 		</tr></table>
@@ -105,6 +116,12 @@
 		created: function() {
 			this.previcon = "angle-double-left";
 			this.nexticon = "angle-double-right";
+		},
+		articleChanged: function() {
+			if(typeof this.$.prevbtn !== 'undefined')
+				this.$.prevbtn.disabled = this.$.content.prev == null;
+			if(typeof this.$.nextbtn !== 'undefined')
+				this.$.nextbtn.disabled = this.$.content.next == null;
 		},
 		buttonClick: function(event, detail, sender) {
 			this.$.content.go(sender.id === "prevbtn");

@@ -19,6 +19,7 @@ use \Mudasobwa\Markright\Parser,
 // Helpers
 function yo($s) { return Parser::yo($s); }
 function p___($s, $web_path = false) { return $web_path ? "/p/{$s}" : "p/{$s}"; }
+//	$app['monolog']->addDebug($id, Cache::instance()->files());
 
 $app = new Silex\Application();
 
@@ -75,30 +76,64 @@ $app->get('/', function (Silex\Application $app, Request $req) {
  * Accepts `offset` and `length` of the output (defaults to [0,9999])
  */
 $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
-	$files = array();
-	foreach(\explode('+', $id) as $file) {
-		$files = \array_merge($files, \glob(p___($file)));
-		if(\count($files) > $offset + $len) {
-			break;
+
+	if(false !== ($curr = \array_search($file = $id, $files = Cache::instance()->files()))) {
+		$prev = $curr > 0 ? p___($files[$curr - 1], true) : null;
+		$next = $curr < count($files) - 1 ? p___($files[$curr + 1], true) : null;
+		$html = '<article class="alone">' . yo(\file_get_contents(p___($file))) . '</article>';
+	} else {
+		$files = array();
+		foreach(\explode('+', $id) as $file) {
+			$files = \array_merge($files, \glob(p___($file)));
+			if(\count($files) >= $offset + $len) {
+				break;
+			}
 		}
+
+		$prev = $offset > 0 ? $files[$offset - 1] : null;
+		$next = \count($files) > $offset + $len ? $files[$offset + $len] : null;
+		$html = '<article class="one-of">' .
+			\implode(
+				'</article><article class="one-of">',
+				\array_map('yo', \array_map('file_get_contents', \array_slice($files, $offset, $len)))
+			) . '</article>';
 	}
-	return new Response(implode(
-		'<hr class="separator">',
-		\array_map('yo', \array_map('file_get_contents', \array_slice($files, $offset, $len)))
-	));
+
+
+	return (new JsonResponse([
+		'html' => $html, 'prev' => $prev, 'next' => $next
+	]))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 })
 ->assert('id', $app['fname_regex'])
 ->value('offset', 0)
 ->value('len', 9999) // FIXME the app would not return more than this value posts at once
 ;
 
-$app->get('/pj/{id}', function (Silex\Application $app, Request $req, $id) {
-    if (!file_exists("p/{$id}")) {
-        $app->abort(404, "Post {$id} does not exist.");
-    }
+$app->get('/pa/{len}/{offset}', function (Silex\Application $app, Request $req, $len, $offset) {
+	$files = Cache::instance()->files();
+	$o_minus_l = $offset - $len;
+	$o_plus_l = $offset + $len;
 
-    return (new JsonResponse(['html' => \Mudasobwa\Markright\Parser::yo(file_get_contents("p/{$id}"))]))->setEncodingOptions(JSON_UNESCAPED_UNICODE);
-})->assert('id', $app['fname_regex']);
+	return (new JsonResponse(
+		[
+			'html' => '<article>' . \implode(
+				'</article><article>',
+				\array_map('yo', \array_map('file_get_contents', \array_map('p___', \array_slice($files, $offset, $len))))
+				) . '</article>',
+			'prev' => $offset >= $len ? "/pa/{$len}/{$o_minus_l}" : null,
+			'next' => \count($files) > $offset + $len ? "/pa/{$len}/{$o_plus_l}" : null
+		]
+	))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+})
+->value('offset', 0)
+->value('len', 9999) // FIXME the app would not return more than this value posts at once
+;
+
+/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
+$app->get('/pc', function (Silex\Application $app) {
+	return $app->redirect(p___(Cache::instance()->files()[0], true));
+});
+
 
 /* ================================================================================================ */
 /* ========================                TAGS                 =================================== */
@@ -131,12 +166,16 @@ $app->get('/t1/{tag}', function (Silex\Application $app, $tag) {
 	if(!isset($tg))
 		$app->abort(404, "Tag {$app->escape($tag)} does not exist.");
 
-	return new Response(
-		\implode(
-			'<hr class="separator">',
-			\array_map('yo', \array_map('file_get_contents', \array_map('p___', $tg)))
-		)
-	);
+	return (new JsonResponse(
+		[
+			'html' => '<article>' . \implode(
+				'</article><article>',
+				\array_map('yo', \array_map('file_get_contents', \array_map('p___', $tg)))
+				) . '</article>',
+			'prev' => null,
+			'next' => null
+		]
+	))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 });
 
 /** Retrieves the content for the tag specified by forwarding to `/p/A+B+C` notation */

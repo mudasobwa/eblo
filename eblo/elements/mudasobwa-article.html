@@ -1,17 +1,25 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
 
-<polymer-element name="mudasobwa-article" attributes="">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-  </template>
-  <script>
-    Polymer({
+<polymer-element name="mudasobwa-article"  extends="mudasobwa-content-slider">
+	<template>
+		<style>
+			:host {
+				display: block;
+				max-width: 860px;
+				margin: auto;
 
-    });
-  </script>
+				border-radius: 10px;
+				-moz-border-radius: 10px;
+				-webkit-border-radius: 10px;
+				border: 2px solid #EEE;
+			}
+		</style>
+		<shadow></shadow>
+	</template>
+	<script>
+		Polymer('mudasobwa-article', {
+
+		});
+	</script>
 </polymer-element>
