@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../../bower_components/polymer-fontawesome/polymer-fontawesome.html">
+
+<!-- expects the answer in the form {html:'',prev:'',next:''} -->
+<polymer-element name="mudasobwa-content-loader" attributes="article url prefetch next prev">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+
+	<core-ajax id="current"
+        auto
+        url="{{ url }}"
+        on-core-response="{{ contentLoaded }}"
+        handleAs="json">
+	</core-ajax>
+	<template id="prevnext" if="{{ prefetch == 'true' }}">
+		<mudasobwa-content-loader id="prev" prefetch="false" url="{{ prev }}"></mudasobwa-content-loader>
+		<mudasobwa-content-loader id="next" prefetch="false" url="{{ next }}"></mudasobwa-content-loader>
+	</template>
+  </template>
+
+  <script>
+    Polymer('mudasobwa-content-loader', {
+		created: function() {
+			this.article = '...';
+			this.next = null;
+			this.prev = null;
+		},
+		contentLoaded: function() {
+			if(this.article != this.$.current.response.html)
+				this.article = this.$.current.response.html;
+			this.next = this.$.current.response.next;
+			this.prev = this.$.current.response.prev;
+		},
+		go: function(previous) {
+			this.url = (previous === true) ? this.prev : this.next;
+			this.$.current.go();
+		}
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="opaque-button" noscript>
+	<template>
+		<style>
+			:host {
+				opacity: 0.5;
+				transition: opacity 400ms ease-in-out;
+			}
+			:host(:hover) { opacity: 1; }
+		</style>
+	<content></content>
+	</template>
+</polymer-element>
+
+<polymer-element name="html-echo" attributes="html">
+	<script>
+	  Polymer('html-echo', {
+		htmlChanged: function() {
+		  // WARNING: potential XSS vulnerability if `html` comes from an untrusted source
+		  this.innerHTML = this.html;
+		}
+	  });
+	</script>
+</polymer-element>
+
+<polymer-element name="mudasobwa-content-slider" attributes="url prefetch buttons previcon nexticon">
+	<style>
+		:host {
+			display: block;
+		}
+		polyfill-next-selector { content: 'table'; }
+		::content table { margin: 0; padding: 0; display: block; }
+		polyfill-next-selector { content: 'table > tbody'; }
+		::content table > tbody { margin: 0; padding: 0; }
+		polyfill-next-selector { content: 'table > tbody > tr'; }
+		::content table > tbody > tr { margin: 0; padding: 0; }
+	</style>
+	<template>
+		<table><tr>
+			<td width="0.2em"> </td>
+			<template if="{{ buttons == 'prev' || buttons == 'both' }}">
+				<td><opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button></td>
+				<td width="0.2em"> </td>
+			</template>
+
+			<td>
+				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch="{{ prefetch }}"></mudasobwa-content-loader>
+				<html-echo id="placeholder" html="{{ article }}"></html-echo>
+			</td>
+
+			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
+				<td width="0.2em"> </td>
+				<td><opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button></td>
+			</template>
+			<td width="0.2em"> </td>
+		</tr></table>
+	</template>
+	<script>
+	  Polymer('mudasobwa-content-slider', {
+		created: function() {
+			this.previcon = "angle-double-left";
+			this.nexticon = "angle-double-right";
+		},
+		buttonClick: function(event, detail, sender) {
+			this.$.content.go(sender.id === "prevbtn");
+		}
+	  });
+	</script>
+</polymer-element>

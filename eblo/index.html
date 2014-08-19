@@ -2,34 +2,48 @@
 <html class="no-js">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Polymer WebApp</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Polymer WebApp</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-  <!-- build:css styles/main.css -->
-  <link rel="stylesheet" href="styles/main.css">
-  <!-- endbuild-->
+	<script src="bower_components/platform/platform.js"></script>
 
-  <script src="bower_components/platform/platform.js"></script>
-  <!-- build:vulcanized elements/elements.vulcanized.html -->
-  <link rel="import" href="elements/elements.html">
-  <!-- endbuild-->
+	<link rel="stylesheet" href="bower_components/x-tag-pseudo-outer/src/main.css">
+	<link rel="stylesheet" href="bower_components/x-tag-transitions/src/main.css">
+	<link rel="stylesheet" href="bower_components/x-tag-calendar/src/calendar.css">
+	<link rel="stylesheet" href="bower_components/x-tag-modal/src/modal.css">
+
+	<script src="bower_components/x-tag-core/dist/x-tag-core.min.js"></script>
+	<script src="bower_components/x-tag-pseudo-outer/src/main.js"></script>
+	<script src="bower_components/x-tag-transitions/src/main.js"></script>
+	<script src="bower_components/x-tag-calendar/src/calendar.js"></script>
+	<script src="bower_components/x-tag-modal/src/modal.js"></script>
+
+	<!-- build:vulcanized elements/elements.vulcanized.html -->
+	<link rel="import" href="elements/elements.html">
+	<link rel="import" href="bower_components/x-meme/x-meme.html">
+
+	<!-- build:css styles/main.css -->
+	<link rel="stylesheet" href="styles/main.css">
+	<!-- endbuild-->
 </head>
 
 <body unresolved>
 
-  <div class="hero-unit">
-    <yo-greeting></yo-greeting>
-    <p>You now have</p>
-    <mudasobwa-fortune message="DDD"></mudasobwa-fortune>
-  </div>
+	<mudasobwa-fortune url="/tr/short_t" prefetch="true" buttons="prev" previcon="refresh"></mudasobwa-fortune>
 
-  <!-- build:js scripts/app.js -->
-  <script src="scripts/app.js"></script>
-  <!-- endbuild-->
+	<div class="hero-unit">
+		<h2>Hey!</h2>
+	</div>
+
+</x-modal>
+
+	<!-- build:js scripts/app.js -->
+	<script src="scripts/app.js"></script>
+	<!-- endbuild-->
 </body>
 
 </html>

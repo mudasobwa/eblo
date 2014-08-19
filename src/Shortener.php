@@ -11,19 +11,14 @@ final class Shortener
 {
     const SYMBOLS = '0123456789[]';
 
-    const BASE128 = 0;
-    const UTFY = 1;
-
     private $base;
 
     private function __construct() {
         $this->base = array(
-            - 1990 + \ord('A'),
-            \ord('P') - 1,
+            - 1999 + \ord('@'), // FIXME 2019 YEAR PROBLEM
+            \ord('T') - 1,
             \ord('`') - 1,
-            \ord('¡'),
-            \ord('À'),
-            256
+            \ord('°') - 1
         );
 	}
 
@@ -72,44 +67,22 @@ final class Shortener
         return preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY);
     }
 
-    private function __tiny_recurse($arr_or_s, $lvl = 0) {
+    private function __tiny_recurse($arr, $lvl = 0) {
         $res = '';
 
-        if (is_array($arr_or_s)) {
-            foreach($arr_or_s as $k => $v) {
-                $res .= $this->unichr(intval($k) + $this->base[$lvl]) . $this->__tiny_recurse($v, $lvl + 1);
-            }
-        } else {
-            foreach(\explode('+', $arr_or_s) as $d) {
-                while(\strlen($d) < 10) { $d .= '-01'; } // make years format comliant
-                $dt = \strtotime(\preg_replace(
-                    '/(\d{4}\-\d{1,2}\-\d{1,2})\-(\d{1,2})\-(\d{1,2})\-(\d{1,2})/',
-                    '\1 \2:\3:\4',
-                    $d)
-                );
-                $res .= $this->unichr(($dt>>16) & 0xFFFF) . $this->unichr($dt & 0xFFFF);
-            }
-        }
+		foreach($arr as $k => $v) {
+			$res .= $this->unichr(intval($k) + $this->base[$lvl]) . $this->__tiny_recurse($v, $lvl + 1);
+		}
 
         return $res;
     }
 
-    public function __tiny($s, $method = self::UTFY) {
-        return $this->__tiny_recurse($method = self::UTFY ? $s : $this->__pack_array($s));
+    public function __tiny($s) {
+        return $this->__tiny_recurse($this->__pack_array($s));
     }
 
-    public function __untiny($s, $method = self::UTFY) {
-        if($method !== self::UTFY) {
-            throw new ShortenerException('Untinying BASE128 is nto yet implemented.');
-        }
-
-        $res = [];
-        foreach($this->str_split_unicode($s, 2) as $d) {
-            $d = $this->uniord($d);
-            if(count($d) < 2) throw new ShortenerException(__METHOD__ . ' :: bad input {$s}, failed on [{$d}].');
-            $res[] = \preg_replace('/(\-00)+$/', '', \date('Y-m-d-H-i-s', ($d[0]<<16) + $d[1]));
-        }
-        return \implode('+', $res);
+    public function __untiny($s) {
+		throw new ShortenerException('Untinying IS NOT YET IMPLED.');
     }
 
     private function __pack_array($s) {
@@ -147,6 +120,7 @@ final class Shortener
 	}
 
 	private function __unserialize($s) {
+		// $s = \preg_replace('/(\])(\d)/', '\1,\2', $s);
         $s = \preg_replace_callback('/\[((?:\d+,?)+)\]/', function($mch) {
             $c = count($m = \explode(',', $mch[1])); // array of desired catches, like “12,14”
             return "a:{$c}:{". \implode('', \array_map(function ($s) { return 'i:'.$s.';a:0:{}'; }, $m)) ."}";
@@ -165,9 +139,7 @@ final class Shortener
 		if(!count($arr)) return 0;
 		// [2002[12],2003[11[14,11]]]
 		foreach($arr as $k => $v) {
-			$kk = (strlen($k) < 2) ? \sprintf("%02d", $k) : $k;
-			$ss = empty($s) ? $kk : "{$s}-{$kk}";
-			if(! $this->__unpack_recurse($ss, $v, $memo)) {
+			if(! $this->__unpack_recurse($ss = empty($s) ? $k : "{$s}-{$k}", $v, $memo)) {
 				$memo[] = $ss;
 			}
 		}
@@ -198,8 +170,6 @@ final class Shortener
     public static function untiny($s) {
         return Shortener::instance()->__untiny($s);
     }
-
-
 
 }
  

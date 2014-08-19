@@ -27,7 +27,7 @@ $app->register(new \Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__.'/development.log',
 ));
 
-$app['fname_regex'] = '^(\d{4}(\-\d{2}){0,5}\+?)+$';
+$app['fname_regex'] = '^(\d{4}(\-\d{1,2}){0,5}\+?)+$';
 
 /*
 $app->error(function (\Exception $e, $code) {
@@ -116,7 +116,13 @@ $app->get('/tr/{tag}', function (Silex\Application $app, $tag) {
 	$tg = Cache::instance()->tags($app->escape($tag));
 	if(!isset($tg))
 		$app->abort(404, "Tag {$app->escape($tag)} does not exist.");
-	return new Response(yo(\file_get_contents(p___($tg[\array_rand($tg)]))));
+	return (new JsonResponse(
+		[
+			'html' => yo(\file_get_contents(p___($tg[\array_rand($tg)]))),
+			'prev' => "/tr/{$tag}",
+			'next' => "/tr/{$tag}"
+		]
+	))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 });
 
 /** Retrieves the content for the tag specified (directly) */
