@@ -3,7 +3,7 @@
 <link rel="import" href="../../bower_components/polymer-fontawesome/polymer-fontawesome.html">
 
 <!-- expects the answer in the form {html:'',prev:'',next:''} -->
-<polymer-element name="mudasobwa-content-loader" attributes="article url prefetch next prev">
+<polymer-element name="mudasobwa-content-loader" attributes="article url title prefetch next prev">
   <template>
     <style>
       :host {
@@ -12,10 +12,9 @@
     </style>
 
 	<core-ajax id="current"
-        auto
-        url="{{ url }}"
-        on-core-response="{{ contentLoaded }}"
-        handleAs="json">
+		url="{{ url }}"
+		on-core-response="{{ contentLoaded }}"
+		handleAs="json">
 	</core-ajax>
 	<template id="prevnext" if="{{ prefetch == 'true' }}">
 		<mudasobwa-content-loader id="prev" prefetch="false" url="{{ prev }}"></mudasobwa-content-loader>
@@ -30,23 +29,59 @@
 			this.next = null;
 			this.prev = null;
 		},
-		contentLoaded: function() {
-			if(this.article != this.$.current.response.html)
-				this.article = this.$.current.response.html;
-			this.next = this.$.current.response.next;
-			this.prev = this.$.current.response.prev;
+		attached: function() {
+			this.reload();
 		},
-		go: function(previous) {
-			if(previous === true) {
-				this.url = this.prev;
-				if((typeof this.$.prev !== 'undefined') && (this.$.prev.article != ''))
-					this.article = this.$.prev.article;
-			} else {
-				this.url = this.next;
-				if((typeof this.$.next !== 'undefined') && (this.$.next.article != ''))
-					this.article = this.$.next.article;
+		contentLoaded: function() {
+			this.article = this.$.current.response.html;
+			this.title = this.$.current.response.title;
+			this.prev = this.$.current.response.prev;
+			this.next = this.$.current.response.next;
+
+			if(this.prefetch == 'true') {
+				this.$.prev.reload();
+				this.$.next.reload();
 			}
+		},
+		reload: function() {
 			this.$.current.go();
+		},
+		step: function(forward) {
+			this.$.url = (true === forward) ? this.next: this.prev;
+			this.reload();
+		},
+		dup: function(other) {
+			if(typeof other !== 'undefined') {
+				this.next = other.next;
+				this.prev = other.prev;
+				this.title = other.title;
+				this.article = other.article;
+			} else {
+				this.next = this.prev = this.title = this.article = null;
+			}
+		},
+		yo: function(previous) {
+			if(this.prefetch !== 'true') {
+				this.reload();
+				return;
+			}
+			if(previous === true) {
+				this.$.next.dup(this);
+				if(this.$.prev) {
+					this.dup(this.$.prev);
+				} else {
+					this.step(false);
+				}
+				this.$.prev.step(false);
+			} else {
+				this.$.prev.dup(this);
+				if(this.$.next) {
+					this.dup(this.$.next);
+				} else {
+					this.step(true);
+				}
+				this.$.next.step(true);
+			}
 		}
     });
   </script>
@@ -78,7 +113,7 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="mudasobwa-content-slider" attributes="url prefetch buttons previcon nexticon">
+<polymer-element name="mudasobwa-content-slider" attributes="url title prefetch buttons previcon nexticon">
 	<template>
 		<style>
 			:host {
@@ -120,13 +155,14 @@
 			this.nexticon = "angle-double-right";
 		},
 		articleChanged: function() {
+			this.title = this.$.content.title;
 			if(typeof this.$.prevbtn !== 'undefined')
-				this.$.prevbtn.disabled = this.$.content.prev == null;
+				this.$.prevbtn.style.display = ('null' == String(this.$.content.prev)) ? 'none' : 'block';
 			if(typeof this.$.nextbtn !== 'undefined')
-				this.$.nextbtn.disabled = this.$.content.next == null;
+				this.$.nextbtn.style.display = ('null' == String(this.$.content.next)) ? 'none' : 'block';
 		},
 		buttonClick: function(event, detail, sender) {
-			this.$.content.go(sender.id === "prevbtn");
+			this.$.content.yo(sender.id === "prevbtn");
 		}
 	  });
 	</script>

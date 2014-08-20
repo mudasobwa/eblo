@@ -78,9 +78,12 @@ $app->get('/', function (Silex\Application $app, Request $req) {
 $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
 
 	if(false !== ($curr = \array_search($file = $id, $files = Cache::instance()->files()))) {
+		$text = \file_get_contents(p___($file));
+		$title = (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '';
+
 		$prev = $curr > 0 ? p___($files[$curr - 1], true) : null;
 		$next = $curr < count($files) - 1 ? p___($files[$curr + 1], true) : null;
-		$html = '<article class="alone">' . yo(\file_get_contents(p___($file))) . '</article>';
+		$html = '<article class="alone">' . yo($text) . '</article>';
 	} else {
 		$files = array();
 		foreach(\explode('+', $id) as $file) {
@@ -97,11 +100,12 @@ $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $r
 				'</article><article class="one-of">',
 				\array_map('yo', \array_map('file_get_contents', \array_slice($files, $offset, $len)))
 			) . '</article>';
+		$title = (\preg_match('/<h1>(.*?)<\/h1>/imxsu', $html, $m)) ? \implode(' | ', $m) : ''; // FIXME NOT TESTED
 	}
 
 
 	return (new JsonResponse([
-		'html' => $html, 'prev' => $prev, 'next' => $next
+		'html' => $html, 'title' => $title, 'prev' => $prev, 'next' => $next
 	]))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 })
 ->assert('id', $app['fname_regex'])
