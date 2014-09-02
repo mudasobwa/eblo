@@ -1,0 +1,43 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="mudasobwa-article"  extends="mudasobwa-content-slider">
+	<template>
+		<style>
+			:host {
+				display: block;
+				max-width: 860px;
+				margin: auto !important;
+			}
+			polyfill-next-selector { content: 'font-awesome'; }
+				::content font-awesome { font-size: 48px; }
+			polyfill-next-selector { content: 'div.slider-content'; }
+				::content div.slider-content {
+					border-radius: 10px;
+					-moz-border-radius: 10px;
+					-webkit-border-radius: 10px;
+					border: 2px solid #EEE;
+
+					padding: 0 1em;
+				}
+		</style>
+		<shadow></shadow>
+	</template>
+	<script>
+		Polymer('mudasobwa-article', {
+			articleChanged: function() {
+				this.super();
+
+				var root = this;
+				while (root.parentNode) {
+					root = root.parentNode;
+				}
+
+				var currState = this.url;
+				History.pushState({state:currState}, this.title, "?state=" + currState);
+				root.title = this.title;
+			}
+
+		});
+	</script>
+</polymer-element>

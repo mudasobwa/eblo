@@ -28,19 +28,87 @@ module.exports = function (grunt) {
     watch: {
       options: {
         nospawn: true,
-        livereload: true
+        livereload: { liveCSS: false }
       },
       livereload: {
         options: {
-          livereload: LIVERELOAD_PORT
+          livereload: true
         },
         files: [
           '<%= yeoman.app %>/*.html',
-          '<%= yeoman.app %>/elements/**/*.html',
+          '<%= yeoman.app %>/elements/{,*/}*.html',
+          '{.tmp,<%= yeoman.app %>}/elements/{,*/}*.css',
           '{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
           '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp}'
         ]
+      },
+      js: {
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.js', 'vendor/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js'],
+        tasks: ['jshint']
+      },
+      styles: {
+        files: [
+          '<%= yeoman.app %>/styles/{,*/}*.css',
+          '<%= yeoman.app %>/elements/{,*/}*.css'
+        ],
+        tasks: ['copy:styles', 'autoprefixer:server']
+      },
+      sass: {
+        files: [
+          '<%= yeoman.app %>/styles/{,*/}*.{scss,sass}',
+          '<%= yeoman.app %>/elements/{,*/}*.{scss,sass}'
+        ],
+        tasks: ['sass:server', 'autoprefixer:server']
+      }
+    },
+    // Compiles Sass to CSS and generates necessary files if requested
+    sass: {
+      options: {
+        sourcemap: true,
+        loadPath: '<%= yeoman.app %>/bower_components'
+      },
+      dist: {
+        options: {
+          style: 'compressed'
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>',
+          src: ['styles/{,*/}*.{scss,sass}', 'elements/{,*/}*.{scss,sass}'],
+          dest: '<%= yeoman.dist %>',
+          ext: '.css'
+        }]
+      },
+      server: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>',
+          src: ['styles/{,*/}*.{scss,sass}', 'elements/{,*/}*.{scss,sass}'],
+          dest: '.tmp',
+          ext: '.css'
+        }]
+      }
+    },
+    autoprefixer: {
+      options: {
+        browsers: ['last 2 versions']
+      },
+      server: {
+        files: [{
+          expand: true,
+          cwd: '.tmp',
+          src: '**/*.css',
+          dest: '.tmp'
+        }]
+      },
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.dist %>',
+          src: ['**/*.css', '!bower_components/**/*.css'],
+          dest: '<%= yeoman.dist %>'
+        }]
       }
     },
     connect: {
@@ -88,8 +156,7 @@ module.exports = function (grunt) {
     },
     clean: {
       dist: ['.tmp', '<%= yeoman.dist %>/*'],
-      server: '.tmp',
-      tmp: '.tmp'
+      server: '.tmp'
     },
     jshint: {
       options: {
@@ -128,6 +195,18 @@ module.exports = function (grunt) {
         }
       }
     },
+    vulcanize: {
+      default: {
+        options: {
+          strip: true
+        },
+        files: {
+          '<%= yeoman.dist %>/elements/elements.vulcanized.html': [
+            '<%= yeoman.dist %>/elements/elements.html'
+          ]
+        }
+      }
+    },
     imagemin: {
       dist: {
         files: [{
@@ -138,46 +217,26 @@ module.exports = function (grunt) {
         }]
       }
     },
-    cssmin: {
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/styles/main.css': [
-            '.tmp/styles/{,*/}*.css',
-            '<%= yeoman.app %>/styles/{,*/}*.css'
-          ]
-        }
-      }
-    },
-    htmlmin: {
-      dist: {
-        options: {
-          /*removeCommentsFromCDATA: true,
-          // https://github.com/yeoman/grunt-usemin/issues/44
-          //collapseWhitespace: true,
-          collapseBooleanAttributes: true,
-          removeAttributeQuotes: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true*/
-        },
+    minifyHtml: {
+      options: {
+        quotes: true,
+        empty: true
+      },
+      app: {
         files: [{
           expand: true,
-          cwd: '<%= yeoman.app %>',
+          cwd: '<%= yeoman.dist %>',
           src: '*.html',
           dest: '<%= yeoman.dist %>'
         }]
       }
     },
-    vulcanize: {
-      default: {
-        options: {},
-        files: {
-          '<%= yeoman.dist %>/elements/elements.vulcanized.html': ['<%= yeoman.dist %>/elements/elements.html'],
-        }
-      }
-    },
     copy: {
+      main: {
+        files: [
+          {expand: true, cwd: 'restark/', src: ['index.php' , 'src/**', 'vendor/**', '.restark.yml' ], dest: 'dist/'}
+        ]
+      },
       dist: {
         files: [{
           expand: true,
@@ -187,11 +246,52 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,txt}',
             '.htaccess',
+            '*.html',
             'elements/**',
+            '!elements/**/*.scss',
             'images/{,*/}*.{webp,gif}',
+			'scripts/vendor/**',
             'bower_components/**'
           ]
         }]
+      },
+      styles: {
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '.tmp',
+          src: ['{styles,elements}/{,*/}*.css']
+        }]
+      }
+    },
+    // See this tutorial if you'd like to run PageSpeed
+    // against localhost: http://www.jamescryer.com/2014/06/12/grunt-pagespeed-and-ngrok-locally-testing/
+    pagespeed: {
+      options: {
+        // By default, we use the PageSpeed Insights
+        // free (no API key) tier. You can use a Google
+        // Developer API key if you have one. See
+        // http://goo.gl/RkN0vE for info
+        nokey: true
+      },
+      // Update `url` below to the public URL for your site
+      mobile: {
+        options: {
+          url: "https://developers.google.com/web/fundamentals/",
+          locale: "en_GB",
+          strategy: "mobile",
+          threshold: 80
+        }
+      }
+    },
+    php: {
+      test: {
+        options: {
+          keepalive: true,
+          port: 5000,
+          base: 'dist',
+          open: true
+        }
       }
     }
   });
@@ -208,31 +308,35 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
+      'sass:server',
+      'copy:styles',
+      'autoprefixer:server',
       'connect:livereload',
-      'copy',
       'open',
       'watch'
     ]);
   });
 
   grunt.registerTask('test', [
-    'clean:server',
-    'connect:test',
+    'default',
+    'php',
     'mocha'
   ]);
 
+
   grunt.registerTask('build', [
     'clean:dist',
+    'sass',
     'copy',
-    'vulcanize',
+    'copy:main',
     'useminPrepare',
     'imagemin',
     'concat',
-    'cssmin',
+    'autoprefixer',
     'uglify',
-    'htmlmin',
+    'vulcanize',
     'usemin',
-    'clean:tmp'
+    'minifyHtml'
   ]);
 
   grunt.registerTask('default', [

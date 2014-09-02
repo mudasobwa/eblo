@@ -1,0 +1,11 @@
+settings :
+  memos            : 5000
+
+data :
+  dir              : 'data'
+  sorter           : 'Mudasobwa\Eblo\Cache::sorter'
+
+tags :
+  nicknames        : '\A[\p{L}\p{N}\d]+\s+[«“](.*)[»”]\s+[\p{L}\p{N}\d]+\Z'
+  short_t          : '\A(.*)\Z'
+  fablesse_oblige  : '(?i)Лабашев|Немиров|Дыбин|колхоз|археологическ|Берлин|Ираклео|Барселон'
