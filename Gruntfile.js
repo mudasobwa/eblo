@@ -44,7 +44,7 @@ module.exports = function (grunt) {
         ]
       },
       js: {
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.js', 'vendor/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js'],
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
         tasks: ['jshint']
       },
       styles: {
@@ -234,7 +234,8 @@ module.exports = function (grunt) {
     copy: {
       main: {
         files: [
-          {expand: true, cwd: 'restark/', src: ['index.php' , 'src/**', 'vendor/**', '.restark.yml' ], dest: 'dist/'}
+          {expand: true, cwd: 'restark/', src: ['index.php' , 'src/**', 'vendor/**', '.restark.yml' ], dest: 'dist/'},
+          {expand: true, cwd: 'vendor/history.js/scripts/bundled/html4+html5/', src: ['native.history.js' ], dest: 'dist/scripts'}
         ]
       },
       dist: {
@@ -318,9 +319,10 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
-    'default',
-    'php',
-    'mocha'
+    // 'jshint',
+    'build',
+    'php'
+//    'mocha'
   ]);
 
 
@@ -340,8 +342,8 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('default', [
-    'jshint',
-    // 'test'
-    'build'
+    'connect:dist',
+	'open',
+	'watch'
   ]);
 };
