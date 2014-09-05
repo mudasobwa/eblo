@@ -47,7 +47,7 @@
 			this.$.current.go();
 		},
 		step: function(forward) {
-			this.$.url = (true === forward) ? this.next: this.prev;
+			this.url = (true === forward) ? this.next: this.prev;
 			this.reload();
 		},
 		dup: function(other) {
@@ -56,8 +56,9 @@
 				this.prev = other.prev;
 				this.title = other.title;
 				this.article = other.article;
+				this.url = other.url;
 			} else {
-				this.next = this.prev = this.title = this.article = null;
+				this.url = this.next = this.prev = this.title = this.article = null;
 			}
 		},
 		yo: function(previous) {
@@ -95,10 +96,15 @@
 				height: 100%;
 				opacity: 0.5;
 				transition: opacity 400ms ease-in-out;
+				cursor: pointer;
 			}
 			:host(:hover) { opacity: 1; }
 		</style>
-	<content></content>
+		<content></content>
+		<script>
+		  Polymer('opaque-button', {
+		  });
+		</script>
 	</template>
 </polymer-element>
 
@@ -130,7 +136,7 @@
 					div.slider-nav-left { margin: 0; padding: 0; position: absolute; top: 0; left: 0.4em; }
 				</style>
 				<div class="slider-nav-left">
-					<opaque-button id="prevbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button>
+					<opaque-button id="prevbtn" on-mouseover="{{ buttonHover }}" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button>
 				</div>
 			</template>
 			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
@@ -147,6 +153,12 @@
 				<html-echo id="placeholder" html="{{ article }}"></html-echo>
 			</div>
 		</div>
+		<!--notification-elements
+				id="growl"
+				header="Meooow!"
+				body="I'm the Octocat!"
+				icon="http://forum.webflow.com/plugins/emoji/images/octocat.png">
+		</notification-elements-->
 	</template>
 	<script>
 	  Polymer('mudasobwa-content-slider', {
@@ -155,6 +167,7 @@
 			this.nexticon = "angle-double-right";
 		},
 		articleChanged: function() {
+			console.log(this.url + " ⇒ " + this.$.content.url);
 			this.title = this.$.content.title;
 			if(typeof this.$.prevbtn !== 'undefined')
 				this.$.prevbtn.style.display = ('null' == String(this.$.content.prev)) ? 'none' : 'block';
@@ -163,6 +176,9 @@
 		},
 		buttonClick: function(event, detail, sender) {
 			this.$.content.yo(sender.id === "prevbtn");
+		},
+		buttonHover: function(event, detail, sender) {
+			// this.$.growl.notify(); // = this.$.content.url;
 		}
 	  });
 	</script>

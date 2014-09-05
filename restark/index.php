@@ -30,10 +30,14 @@ $app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/.restark.yml');
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+function urlFor($file) {
+	return $file ? "/p/{$file}" : null;
+}
+
 function buildResponse($files, $len, $offset) {
 	return array(
-		'prev' => $offset <= 0 ? null : $files[\max($offset - $len, 0)],
-		'next' => \count($files) > $offset + $len ? $files[$offset + $len] : null,
+		'prev' => $offset <= 0 ? null : urlFor($files[\max($offset - $len, 0)]),
+		'next' => \count($files) > $offset + $len ? urlFor($files[$offset + $len]) : null,
 		'html' => \array_map(
 					array('\Mudasobwa\Markright\Parser', 'yo'),
 					\array_map(
@@ -43,10 +47,6 @@ function buildResponse($files, $len, $offset) {
 				),
 		'title' => '' // FIXME
 	);
-}
-
-function urlFor($file) {
-	return "/p/{$file}";
 }
 
 /* ================================================================================================ */
@@ -67,8 +67,8 @@ $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $r
 		$text = $cache->content($id);
 		$result = array(
 			'title' => (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '',
-			'prev' => $cache->prev($id),
-			'next' => $cache->next($id),
+			'prev' => urlFor($cache->prev($id)),
+			'next' => urlFor($cache->next($id)),
 			'html' => Parser::yo($text)
 		);
 	} else {

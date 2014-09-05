@@ -2,7 +2,7 @@ settings :
   memos            : 5000
 
 data :
-  dir              : 'data'
+  dir              : '../data'
   sorter           : 'Mudasobwa\Eblo\Cache::sorter'
 
 tags :

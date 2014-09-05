@@ -34,6 +34,7 @@
 				}
 
 				var currState = this.url;
+				console.log("Pushing state " + currState);
 				History.pushState({state:currState}, this.title, "?state=" + currState);
 				root.title = this.title;
 			}
