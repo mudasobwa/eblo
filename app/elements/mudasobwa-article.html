@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 
-<polymer-element name="mudasobwa-article"  extends="mudasobwa-content-slider">
+<polymer-element name="mudasobwa-article"  extends="mudasobwa-content-slider" attributes="apiurlprefix">
 	<template>
 		<style>
 			:host {
@@ -25,6 +25,21 @@
 	</template>
 	<script>
 		Polymer('mudasobwa-article', {
+			frozen: false,
+			freeze: function(frozen) {
+				this.frozen = frozen;
+			},
+			attached: function() {
+					this.super();
+					var self = this;
+					(function(window, undefined){
+						// Bind to StateChange Event
+						History.Adapter.bind(window, 'statechange', function() {
+							if(!self.frozen)
+								self.$.content.goto(self.apiurlprefix + History.getState().data['state']);
+						});
+					})(window);
+			},
 			articleChanged: function() {
 				this.super();
 
@@ -33,10 +48,14 @@
 					root = root.parentNode;
 				}
 
-				var currState = this.url;
-				console.log("Pushing state " + currState);
-				History.pushState({state:currState}, this.title, "?state=" + currState);
-				root.title = this.title;
+				if(this.url) {
+					var currState = this.url.replace(new RegExp('^' + this.apiurlprefix), '');
+					console.log("Pushing state " + currState);
+					this.freeze(true);
+					History.pushState({state:currState}, this.title, currState);
+					this.freeze(false);
+					root.title = this.title;
+				}
 			}
 
 		});

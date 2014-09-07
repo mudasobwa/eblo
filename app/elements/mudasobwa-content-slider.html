@@ -5,87 +5,91 @@
 <!-- expects the answer in the form {html:'',prev:'',next:''} -->
 <polymer-element name="mudasobwa-content-loader" attributes="article url title prefetch next prev">
   <template>
-    <style>
-      :host {
-        display: none;
-      }
-    </style>
+		<style>
+			:host {
+				display: none;
+			}
+		</style>
 
-	<core-ajax id="current"
-		url="{{ url }}"
-		on-core-response="{{ contentLoaded }}"
-		handleAs="json">
-	</core-ajax>
-	<template id="prevnext" if="{{ prefetch == 'true' }}">
-		<mudasobwa-content-loader id="prev" prefetch="false" url="{{ prev }}"></mudasobwa-content-loader>
-		<mudasobwa-content-loader id="next" prefetch="false" url="{{ next }}"></mudasobwa-content-loader>
-	</template>
+		<core-ajax id="current"
+			url="{{ url }}"
+			on-core-response="{{ contentLoaded }}"
+			handleAs="json">
+		</core-ajax>
+		<template id="prevnext" if="{{ prefetch == 'true' }}">
+			<mudasobwa-content-loader id="prev" prefetch="false" url="{{ prev }}"></mudasobwa-content-loader>
+			<mudasobwa-content-loader id="next" prefetch="false" url="{{ next }}"></mudasobwa-content-loader>
+		</template>
   </template>
 
-  <script>
-    Polymer('mudasobwa-content-loader', {
-		created: function() {
-			this.article = '';
-			this.next = null;
-			this.prev = null;
-		},
-		attached: function() {
-			this.reload();
-		},
-		contentLoaded: function() {
-			this.article = this.$.current.response.html;
-			this.title = this.$.current.response.title;
-			this.prev = this.$.current.response.prev;
-			this.next = this.$.current.response.next;
-
-			if(this.prefetch == 'true') {
-				this.$.prev.reload();
-				this.$.next.reload();
-			}
-		},
-		reload: function() {
-			this.$.current.go();
-		},
-		step: function(forward) {
-			this.url = (true === forward) ? this.next: this.prev;
-			this.reload();
-		},
-		dup: function(other) {
-			if(typeof other !== 'undefined') {
-				this.next = other.next;
-				this.prev = other.prev;
-				this.title = other.title;
-				this.article = other.article;
-				this.url = other.url;
-			} else {
-				this.url = this.next = this.prev = this.title = this.article = null;
-			}
-		},
-		yo: function(previous) {
-			if(this.prefetch !== 'true') {
+	<script>
+		Polymer('mudasobwa-content-loader', {
+			created: function() {
+				this.article = '';
+				this.next = null;
+				this.prev = null;
+			},
+			attached: function() {
 				this.reload();
-				return;
-			}
-			if(previous === true) {
-				this.$.next.dup(this);
-				if(this.$.prev) {
-					this.dup(this.$.prev);
-				} else {
-					this.step(false);
+			},
+			contentLoaded: function() {
+				this.article = this.$.current.response.html;
+				this.title = this.$.current.response.title;
+				this.prev = this.$.current.response.prev;
+				this.next = this.$.current.response.next;
+
+				if(this.prefetch == 'true') {
+					this.$.prev.reload();
+					this.$.next.reload();
 				}
-				this.$.prev.step(false);
-			} else {
-				this.$.prev.dup(this);
-				if(this.$.next) {
-					this.dup(this.$.next);
+			},
+			reload: function() {
+				this.$.current.go();
+			},
+			goto: function(url) {
+				this.url = url;
+				this.reload();
+			},
+			step: function(forward) {
+				this.url = (true === forward) ? this.next: this.prev;
+				this.reload();
+			},
+			dup: function(other) {
+				if(typeof other !== 'undefined') {
+					this.url = other.url;
+					this.next = other.next;
+					this.prev = other.prev;
+					this.title = other.title;
+					this.article = other.article;
 				} else {
-					this.step(true);
+					this.next = this.prev = this.title = this.article = this.url = null;
 				}
-				this.$.next.step(true);
+			},
+			yo: function(previous) {
+				if(this.prefetch !== 'true') {
+					this.reload();
+					return;
+				}
+				if(previous === true) {
+					this.$.next.dup(this);
+					if(this.$.prev) {
+						this.dup(this.$.prev);
+					} else {
+						this.step(false);
+					}
+					this.$.prev.step(false);
+				} else {
+					this.$.prev.dup(this);
+					if(this.$.next) {
+						this.dup(this.$.next);
+					} else {
+						this.step(true);
+					}
+					this.$.next.step(true);
+				}
 			}
-		}
-    });
-  </script>
+		});
+	</script>
 </polymer-element>
 
 <polymer-element name="opaque-button" noscript>
@@ -110,12 +114,12 @@
 
 <polymer-element name="html-echo" attributes="html">
 	<script>
-	  Polymer('html-echo', {
-		htmlChanged: function() {
-		  // WARNING: potential XSS vulnerability if `html` comes from an untrusted source
-		  this.innerHTML = this.html;
-		}
-	  });
+		Polymer('html-echo', {
+			htmlChanged: function() {
+				// WARNING: potential XSS vulnerability if `html` comes from an untrusted source
+				this.innerHTML = this.html;
+			}
+		});
 	</script>
 </polymer-element>
 
@@ -161,25 +165,24 @@
 		</notification-elements-->
 	</template>
 	<script>
-	  Polymer('mudasobwa-content-slider', {
-		created: function() {
-			this.previcon = "angle-double-left";
-			this.nexticon = "angle-double-right";
-		},
-		articleChanged: function() {
-			console.log(this.url + " ⇒ " + this.$.content.url);
-			this.title = this.$.content.title;
-			if(typeof this.$.prevbtn !== 'undefined')
-				this.$.prevbtn.style.display = ('null' == String(this.$.content.prev)) ? 'none' : 'block';
-			if(typeof this.$.nextbtn !== 'undefined')
-				this.$.nextbtn.style.display = ('null' == String(this.$.content.next)) ? 'none' : 'block';
-		},
-		buttonClick: function(event, detail, sender) {
-			this.$.content.yo(sender.id === "prevbtn");
-		},
-		buttonHover: function(event, detail, sender) {
-			// this.$.growl.notify(); // = this.$.content.url;
-		}
-	  });
+		Polymer('mudasobwa-content-slider', {
+			created: function() {
+				this.previcon = "angle-double-left";
+				this.nexticon = "angle-double-right";
+			},
+			articleChanged: function() {
+				this.title = this.$.content.title;
+				if(typeof this.$.prevbtn !== 'undefined')
+					this.$.prevbtn.style.display = ('null' === String(this.$.content.prev)) ? 'none' : 'block';
+				if(typeof this.$.nextbtn !== 'undefined')
+					this.$.nextbtn.style.display = ('null' === String(this.$.content.next)) ? 'none' : 'block';
+			},
+			buttonClick: function(event, detail, sender) {
+				this.$.content.yo(sender.id === "prevbtn");
+			},
+			buttonHover: function(event, detail, sender) {
+				// this.$.growl.notify(); // = this.$.content.url;
+			}
+		});
 	</script>
 </polymer-element>

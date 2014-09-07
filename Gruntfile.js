@@ -198,7 +198,8 @@ module.exports = function (grunt) {
     vulcanize: {
       default: {
         options: {
-          strip: true
+          strip: true,
+          inline: true
         },
         files: {
           '<%= yeoman.dist %>/elements/elements.vulcanized.html': [
@@ -251,7 +252,7 @@ module.exports = function (grunt) {
             'elements/**',
             '!elements/**/*.scss',
             'images/{,*/}*.{webp,gif}',
-			'scripts/vendor/**',
+            'scripts/vendor/**',
             'bower_components/**'
           ]
         }]
@@ -293,6 +294,8 @@ module.exports = function (grunt) {
           base: 'dist',
           open: true
         }
+      },
+      watch: {
       }
     }
   });
@@ -319,10 +322,10 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
-    // 'jshint',
+    'jshint',
     'build',
-    'php'
-//    'mocha'
+//    'php:watch',
+    'php:test',
   ]);
 
 
@@ -343,7 +346,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'connect:dist',
-	'open',
-	'watch'
+    'open',
+    'watch'
   ]);
 };

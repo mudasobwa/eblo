@@ -14,30 +14,38 @@ use \Symfony\Component\HttpKernel\HttpKernelInterface,
 use \Mudasobwa\Markright\Parser,
 	\Mudasobwa\Eblo\Cache;
 
+const MY_MUSTACHES_LEFT		= '⦃';		// U+2983 &#10627;
+const MY_MUSTACHES_RIGHT	= '⦄';		// U+2984 &#10628;
+
 $app = new Silex\Application();
 
-$app['debug'] = true;
+// Not more than 99 posts per day, not more than 99 parts of the post
+$app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/.restark.yml');
+$app['restark.template'] = $app['restark.config']['template']['article'];
+$app['restark.regex'] = $app['restark.config']['template']['regex'];
+
+$app['debug'] = $app['restark.config']['settings']['debug'];
 $app->register(new \Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__.'/development.log',
 ));
-
-// Not more than 99 posts per day, not more than 99 parts of the post
-$app['restark.regex'] = '^(\d{4}(\-\d{1,2}){0,5}\+?)+$';
-$app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/.restark.yml');
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
-function urlFor($file) {
-	return $file ? "/p/{$file}" : null;
+function htmlFor($file) {
+    return $file ? "/{$file}" : null;
+}
+
+function jsonFor($file) {
+    return $file ? "/p/{$file}" : null;
 }
 
 function buildResponse($files, $len, $offset) {
 	return array(
-		'prev' => $offset <= 0 ? null : urlFor($files[\max($offset - $len, 0)]),
-		'next' => \count($files) > $offset + $len ? urlFor($files[$offset + $len]) : null,
+		'prev' => $offset <= 0 ? null : jsonFor($files[\max($offset - $len, 0)]),
+		'next' => \count($files) > $offset + $len ? jsonFor($files[$offset + $len]) : null,
 		'html' => \array_map(
 					array('\Mudasobwa\Markright\Parser', 'yo'),
 					\array_map(
@@ -53,6 +61,17 @@ function buildResponse($files, $len, $offset) {
 /* ========================               POSTS                 =================================== */
 /* ================================================================================================ */
 
+
+$app->get('/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
+    $tmpl = \file_get_contents($app['restark.template']);
+    $tmpl = \preg_replace('/'.MY_MUSTACHES_LEFT.'(.*?)'.MY_MUSTACHES_RIGHT.'/', jsonFor($id), $tmpl); // FIXME Not simple ID here
+    return new Response($tmpl);
+})
+->assert('id', $app['restark.regex'])
+->value('offset', 0)
+->value('len', 9999) // FIXME the app would not return more than this value posts at once
+;
+
 /**
  * Accepts `id`s in the following forms:
  *   - `2000-12-24-1` for exact match
@@ -67,8 +86,8 @@ $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $r
 		$text = $cache->content($id);
 		$result = array(
 			'title' => (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '',
-			'prev' => urlFor($cache->prev($id)),
-			'next' => urlFor($cache->next($id)),
+			'prev' => jsonFor($cache->prev($id)),
+			'next' => jsonFor($cache->next($id)),
 			'html' => Parser::yo($text)
 		);
 	} else {
@@ -99,9 +118,14 @@ $app->get('/ps/{len}/{offset}', function (Silex\Application $app, Request $req, 
 ;
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-$app->get('/pc', function (Silex\Application $app) {
-	return $app->redirect(urlFor(Cache::instance()->files()[0], true));
-});
+// $app->get('/pc', function (Silex\Application $app) {
+// 	return $app->redirect(jsonFor(Cache::instance()->files()[0], true));
+// });
+
+/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
+// $app->get('/', function (Silex\Application $app) {
+//    return $app->redirect(htmlFor(Cache::instance()->files()[0], true));
+//});
 
 /* ================================================================================================ */
 /* ========================                TAGS                 =================================== */

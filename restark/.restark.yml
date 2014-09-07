@@ -1,8 +1,13 @@
+template:
+  article          : 'index.html'
+  regex            : '^(\d{4}(\-\d{1,2}){0,5}\+?)+$'
+
 settings :
+  debug            : 1
   memos            : 5000
 
 data :
-  dir              : '../data'
+  dir              : 'data'
   sorter           : 'Mudasobwa\Eblo\Cache::sorter'
 
 tags :
