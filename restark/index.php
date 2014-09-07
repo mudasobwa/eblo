@@ -21,7 +21,7 @@ $app = new Silex\Application();
 
 // Not more than 99 posts per day, not more than 99 parts of the post
 $app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/.restark.yml');
-$app['restark.template'] = $app['restark.config']['template']['article'];
+$app['restark.template'] = \file_get_contents($app['restark.config']['template']['article']);
 $app['restark.regex'] = $app['restark.config']['template']['regex'];
 
 $app['debug'] = $app['restark.config']['settings']['debug'];
@@ -63,9 +63,10 @@ function buildResponse($files, $len, $offset) {
 
 
 $app->get('/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
-    $tmpl = \file_get_contents($app['restark.template']);
-    $tmpl = \preg_replace('/'.MY_MUSTACHES_LEFT.'(.*?)'.MY_MUSTACHES_RIGHT.'/', jsonFor($id), $tmpl); // FIXME Not simple ID here
-    return new Response($tmpl);
+	// FIXME Not simple ID here
+	return new Response(
+		\preg_replace('/'.MY_MUSTACHES_LEFT.'(.*?)'.MY_MUSTACHES_RIGHT.'/', jsonFor($id), $app['restark.template'])
+	);
 })
 ->assert('id', $app['restark.regex'])
 ->value('offset', 0)
@@ -123,9 +124,9 @@ $app->get('/ps/{len}/{offset}', function (Silex\Application $app, Request $req, 
 // });
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-// $app->get('/', function (Silex\Application $app) {
-//    return $app->redirect(htmlFor(Cache::instance()->files()[0], true));
-//});
+$app->get('/', function (Silex\Application $app) {
+	return $app->redirect(htmlFor(Cache::instance()->files()[0], true));
+});
 
 /* ================================================================================================ */
 /* ========================                TAGS                 =================================== */
