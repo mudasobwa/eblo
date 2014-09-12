@@ -195,7 +195,7 @@ final class Cache
 
 	public function reset($config = null) {
 		if (null === $config) {
-			$config = \Spyc::YAMLLoad(__DIR__.'/../.restark.yml');
+			$config = \Spyc::YAMLLoad(__DIR__.'/../config/.restark.yml');
 		}
 		$this->config	= $config;
 		$this->tags		= null;

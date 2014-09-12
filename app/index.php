@@ -1,7 +1,7 @@
 <?php
 
 $filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
-if (php_sapi_name() === 'cli-server' && is_file($filename)) {
+if (php_sapi_name() === 'cli-server' && is_file($filename)) { // TODO
     return false;
 }
 
@@ -20,7 +20,7 @@ const MY_MUSTACHES_RIGHT	= '⦄';		// U+2984 &#10628;
 $app = new Silex\Application();
 
 // Not more than 99 posts per day, not more than 99 parts of the post
-$app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/.restark.yml');
+$app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/config/.restark.yml');
 $app['restark.template'] = \file_get_contents($app['restark.config']['template']['article']);
 $app['restark.regex'] = $app['restark.config']['template']['regex'];
 

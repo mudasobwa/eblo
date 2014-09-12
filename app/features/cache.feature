@@ -21,16 +21,16 @@ Feature: Cache is responsible for caching the common data
     Given the Cache instance is retrieven
     When the files list is requested
     Then the result should be an array
-    And the first element of array should be "2014-8-6-1"
-    And the prev element of "2014-8-6-1" should be "null"
-    And the next element of "2014-8-6-1" should be "2014-8-5-2"
+    And the first element of array should be "2014-8-10-1"
+    And the prev element of "2014-8-10-1" should be "null"
+    And the next element of "2014-8-10-1" should be "2014-8-6-1"
 
   Scenario: Files are being found with Cache instance
     Given the Cache instance is retrieven
     When the files list is requested for filter "2014-8"
     Then the result should be an array
-    And the first element of array should be "2014-8-6-1"
-    And the last element of array should be "2014-8-5-1"
+    And the first element of array should be "2014-8-10-1"
+    And the last element of array should be "2014-8-2-1"
 
   Scenario: Content of the file is successfully retrieven
     Given the config is loaded from default location

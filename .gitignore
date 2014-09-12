@@ -1,10 +1,12 @@
 node_modules/
-vendor/
 dist/
 .tmp/
 .idea/
 test/temp/
 .sass-cache/
-bower_components
 app/bower_components/
+app/composer.lock
+app/development.log
+app/vendor
+data
 test/bower_components/

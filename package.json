@@ -1,6 +1,6 @@
 {
-  "name": "combonent",
-  "version": "0.0.1",
+  "name": "eblo",
+  "version": "0.0.2",
   "dependencies": {},
   "devDependencies": {
     "connect-livereload": "~0.4.0",

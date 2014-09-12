@@ -61,7 +61,7 @@ class FeatureContext extends BehatContext
      * @Given /^the config is loaded from default location$/
      */
     public function theConfigIsLoadedFromDefaultLocation() {
-        $this->config = \Spyc::YAMLLoad(__DIR__.'/../../.restark.yml');
+        $this->config = \Spyc::YAMLLoad(__DIR__.'/../../config/.restark.yml');
     }
 
     /**

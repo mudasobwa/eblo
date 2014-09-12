@@ -1,0 +1,3 @@
+[submodule "vendor/history.js"]
+	path = vendor/history.js
+	url = git://github.com/browserstate/history.js
