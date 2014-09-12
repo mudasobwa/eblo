@@ -28,7 +28,7 @@ module.exports = function (grunt) {
 		watch: {
 			options: {
 				nospawn: true,
-				livereload: { liveCSS: false }
+				livereload: { liveCSS: true }
 			},
 			livereload: {
 				options: {
@@ -36,6 +36,8 @@ module.exports = function (grunt) {
 				},
 				files: [
 					'<%= yeoman.app %>/*.html',
+					'<%= yeoman.app %>/*.php',
+					'<%= yeoman.app %>/php.src/*.php',
 					'<%= yeoman.app %>/elements/{,*/}*.html',
 					'{.tmp,<%= yeoman.app %>}/elements/{,*/}*.css',
 					'{.tmp,<%= yeoman.app %>}/styles/{,*/}*.css',
@@ -280,6 +282,16 @@ module.exports = function (grunt) {
 						src: ['{styles,elements}/{,*/}*.css']
 					}
 				]
+			},
+			styles4test: {
+				files: [
+					{
+						expand: true,
+						cwd: '<%= yeoman.app %>/../.tmp/styles',
+						dest: '<%= yeoman.app %>/styles/',
+						src: ['*.css']
+					}
+				]
 			}
 		},
 		// See this tutorial if you'd like to run PageSpeed
@@ -350,6 +362,11 @@ module.exports = function (grunt) {
 	});
 
 	grunt.registerTask('default', [
+		'clean:server',
+		'sass:server',
+		'copy:styles',
+		'autoprefixer:server',
+		'copy:styles4test',
 		'php:test'
 	]);
 

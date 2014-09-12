@@ -9,5 +9,7 @@ app/composer.lock
 app/development.log
 app/vendor
 app/bin
+app/styles/main.css
+app/styles/normalize.css
 data
 test/bower_components/
