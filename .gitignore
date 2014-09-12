@@ -8,5 +8,6 @@ app/bower_components/
 app/composer.lock
 app/development.log
 app/vendor
+app/bin
 data
 test/bower_components/
