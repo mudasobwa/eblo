@@ -315,24 +315,25 @@ module.exports = function (grunt) {
 			}
 		},
 		php: {
+			options: {
+				port: 5000,
+				keepalive: true,
+				open: true,
+				hostname: 'localhost'
+			},
 			dist: {
 				options: {
-					keepalive: true,
-					port: 5000,
 					base: '<%= yeoman.dist %>',
-					open: true
-				}
-			},
-			test: {
-				options: {
-					keepalive: true,
-					port: 5000,
-					base: '<%= yeoman.app %>',
-					open: true
 				}
 			},
 			watch: {
 				options: {
+					port: 5000,
+					livereload: 5000,
+					base: '<%= yeoman.app %>',
+					hostname: 'localhost',
+					keepalive: true,
+					open: true,
 					atBegin: true
 				}
 
@@ -361,19 +362,21 @@ module.exports = function (grunt) {
 		]);
 	});
 
+	grunt.registerTask('phpwatch', ['php:watch', 'watch']);
+
 	grunt.registerTask('default', [
 		'clean:server',
 		'sass:server',
 		'copy:styles',
 		'autoprefixer:server',
 		'copy:styles4test',
-		'php:test'
+		'phpwatch',
 	]);
 
 	grunt.registerTask('dist', [
 		'jshint',
 		'build',
-		'php:test',
+		'php:dist',
 	]);
 
 	grunt.registerTask('build', [
