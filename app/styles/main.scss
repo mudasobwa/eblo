@@ -1,5 +1,6 @@
 $blue : rgba(0,83,159,.65);
 $violet : #7D25AC;
+$gray: #999999;
 
 $almostwhite : rgba(234,239,242,.9);
 $lightestgray : rgba(234,239,242,.5);
@@ -40,7 +41,7 @@ html /deep/ blockquote p {
 }
 
 html /deep/ blockquote p small {
-	color: #666;
+	color: $gray;
 }
 
 html /deep/ blockquote small:before {
@@ -90,4 +91,11 @@ html /deep/ dl dt {
 
 html /deep/ #nextbtn, html /deep/ #prevbtn {
 	color: $violet;
+}
+
+html /deep/ p.epigraph {
+	width: 100%;
+	text-align: right;
+	font-style: italic;
+	color: $gray;
 }
