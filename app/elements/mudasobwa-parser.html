@@ -1,0 +1,32 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="mudasobwa-parser" attributes="input url">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+		<shadow></shadow>
+	</template>
+	<script>
+		Polymer('mudasobwa-parser', {
+			rules: [
+				[/(\A|\s)\*(.+?)\*(\s|\Z)/gm, '<b>$1$2$3</b>', 'gm'],
+				[/(.*)/, '<h2>$1</h2>', ''],
+			],
+			inputChanged: function() {
+				this.innerHTML = this.format(this.input);
+			},
+			format: function(text) {
+				var result = text;
+				this.rules.forEach(function(rule) {
+					console.log("applying rule: ");
+					console.log(rule);
+					result = result.replace(rule[0], rule[1], rule[2]);
+				});
+				return result;
+			}
+		});
+	</script>
+</polymer-element>

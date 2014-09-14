@@ -11,7 +11,7 @@ use \Symfony\Component\HttpKernel\HttpKernelInterface,
 	\Symfony\Component\HttpFoundation\Response,
 	\Symfony\Component\HttpFoundation\Request,
 	\Symfony\Component\HttpFoundation\JsonResponse;
-use \Mudasobwa\Markright\Parser,
+use \Mudasobwa\Eblo\Parser,
 	\Mudasobwa\Eblo\Cache;
 
 const MY_MUSTACHES_LEFT		= '⦃';		// U+2983 &#10627;
@@ -46,13 +46,13 @@ function buildResponse($files, $len, $offset) {
 	return array(
 		'prev' => $offset <= 0 ? null : jsonFor($files[\max($offset - $len, 0)]),
 		'next' => \count($files) > $offset + $len ? jsonFor($files[$offset + $len]) : null,
-		'html' => \array_map(
-					array('\Mudasobwa\Markright\Parser', 'yo'),
-					\array_map(
+		'text' => \array_map(
+				array('\Mudasobwa\Eblo\Markright', 'yo'),
+				\array_map(
 						array('\Mudasobwa\Eblo\Cache', 'load'),
 						\array_slice($files, $offset, $len)
-					)
-				),
+				)
+		),
 		'title' => '' // FIXME
 	);
 }
@@ -89,7 +89,7 @@ $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $r
 			'title' => (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '',
 			'prev' => jsonFor($cache->prev($id)),
 			'next' => jsonFor($cache->next($id)),
-			'html' => Parser::yo($text)
+			'text' => $text
 		);
 	} else {
 		$files = array();

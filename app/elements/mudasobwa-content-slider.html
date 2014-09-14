@@ -1,8 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="../bower_components/polymer-fontawesome/polymer-fontawesome.html">
+<link rel="import" href="mudasobwa-parser.html">
 
-<!-- expects the answer in the form {html:'',title:'',prev:'',next:''} -->
+<!-- expects the answer in the form {text:'',title:'',prev:'',next:''} -->
 <polymer-element name="mudasobwa-content-loader" attributes="url article title prefetch next prev">
   <template>
 		<style>
@@ -43,7 +44,7 @@
 				}
 			},
 			contentLoaded: function() {
-				this.article = this.$.current.response.html;
+				this.article = this.$.current.response.text;
 				this.title = this.$.current.response.title;
 				this.prev = this.$.current.response.prev;
 				this.next = this.$.current.response.next;
@@ -132,17 +133,6 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="html-echo" attributes="html url">
-	<script>
-		Polymer('html-echo', {
-			htmlChanged: function() {
-				// WARNING: potential XSS vulnerability if `html` comes from an untrusted source
-				this.innerHTML = this.html;
-			}
-		});
-	</script>
-</polymer-element>
-
 <polymer-element name="mudasobwa-content-slider" attributes="url title buttons previcon nexticon">
 	<template>
 		<style>
@@ -174,7 +164,7 @@
 
 			<div class="slider-content">
 				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch></mudasobwa-content-loader>
-				<html-echo id="placeholder" html="{{ article }}" url="{{ url }}"></html-echo>
+				<mudasobwa-parser id="placeholder" input="{{ article }}" url="{{ url }}"></mudasobwa-parser>
 			</div>
 		</div>
 		<!--notification-elements

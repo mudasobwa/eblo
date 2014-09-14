@@ -26,7 +26,8 @@
 	"autoload"    : {
 		"psr-4" : {
 			"Mudasobwa\\Eblo\\" : "php.src"
-		}
+
+}
 	},
 	"config": {
 		"bin-dir": "bin/"
