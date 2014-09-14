@@ -1,29 +1,93 @@
+$blue : rgba(0,83,159,.65);
+$violet : #7D25AC;
+
+$almostwhite : rgba(234,239,242,.9);
+$lightestgray : rgba(234,239,242,.5);
+
 body {
-  background: #fafafa;
-  font-family: "FreeSerif", Helvetica, Arial, sans-serif;
+  background: rgba(234,239,242,.25);
+  font-family: ProximaNovaRegular, Helvetica, Arial, sans-serif;
   color: #333;
 }
 
-.hero-unit {
-  margin: 50px auto 0 auto;
-  width: 300px;
-  font-size: 18px;
-  font-weight: 200;
-  line-height: 30px;
-  background-color: #eee;
-  border-radius: 6px;
-  padding: 60px;
+#article {
+	padding: 0 1em;
+	max-width: 860px;
+	margin: auto;
 }
 
-.hero-unit h1 {
-  font-size: 60px;
-  line-height: 1;
-  letter-spacing: -1px;
+#toolbar {
+	background-color: $violet;
+	color: $almostwhite;
+	fill: $almostwhite;
+	margin-bottom: 2em;
 }
 
-.browsehappy {
-  margin: 0.2em 0;
-  background: #ccc;
-  color: #000;
-  padding: 0.2em 0;
+html /deep/ h1 {
+	border-left: 6px solid $violet;
+	padding: 0.2em 1em;
+	background: $lightestgray;
+}
+
+html /deep/ blockquote {
+	border-left: 6px solid $blue;
+	padding: 0.2em 1em;
+	background: $lightestgray;
+}
+
+html /deep/ blockquote p {
+	padding: 0; margin: 0;
+}
+
+html /deep/ blockquote p small {
+	color: #666;
+}
+
+html /deep/ blockquote small:before {
+	content: '\2014 \00A0';
+}
+
+html /deep/ figure, html /deep/ figure figcaption {
+	border: 1px solid rgba(200,210,220,.5);
+	background: rgba(234,239,242,.5);
+}
+
+html /deep/ figure {
+	display: table;
+	margin: 0;
+	padding: 0;
+	border-bottom: none;
+	margin-bottom: 1.6em;
+}
+
+html /deep/ figure figcaption {
+	display: table-caption;
+	caption-side: bottom;
+	border-top: none;
+	padding: 0em 1em;
+}
+
+html /deep/ figure figcaption p {
+	font-size: 86%;
+	padding: 0;
+}
+
+html /deep/ hr {
+	border: 0;
+	height: 1px;
+	margin: 1em 0;
+	background-image: -webkit-linear-gradient(left, rgba(0,0,0,0), $violet, rgba(0,0,0,0));
+	background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), $violet, rgba(0,0,0,0));
+	background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), $violet, rgba(0,0,0,0));
+	background-image:      -o-linear-gradient(left, rgba(0,0,0,0), $violet, rgba(0,0,0,0));
+	background-image:         linear-gradient(left, rgba(0,0,0,0), $violet, rgba(0,0,0,0));
+}
+
+html /deep/ dl dt {
+	font-weight: 700;
+	color: darken($violet, 50%);
+}
+
+html /deep/ #nextbtn, html /deep/ #prevbtn {
+	color: $violet;
 }

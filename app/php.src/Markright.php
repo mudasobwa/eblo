@@ -11,14 +11,15 @@ class Markright
 	public function __construct($rules = NULL) {
 		$this->rules = file_exists($rules) ? \Spyc::YAMLLoad($rules) :
 			[
-				'/(?<=\A|\s)\*\*(.*?)\*\*(?=\W)/mxu'	=> '<strong>\1</strong>',
-				'/(?<=\A|\s)\*(.*?)\*(?=\W)/mxu'			=> '<b>\1</b>',
-				'/(?<=\A|\s)__(.*?)__(?=\W)/mxu'			=> '<em>\1</em>',
-				'/(?<=\A|\s)_(.*?)_(?=\W)/mxu'				=> '<i>\1</i>',
-				'/(?<=\A|\s)`(.*?)`(?=\W)/mxu'				=> '<code>\1</code>',
-				'/(?<=\A|\s)\+(.*?)\+(?=\W)/mxu'			=> '<small>\1</small>',
+				'/(?<=\W)\*\*(.*?)\*\*(?=\W)/smxu'		=> '<strong>\1</strong>',
+				'/(?<=\W)\*(.*?)\*(?=\W)/smxu'				=> '<b>\1</b>',
+				'/(?<=\W)__(.*?)__(?=\W)/smxu'				=> '<em>\1</em>',
+				'/(?<=\W)_(.*?)_(?=\W)/smxu'					=> '<i>\1</i>',
+				'/(?<=\W)`(.*?)`(?=\W)/smxu'					=> '<code>\1</code>',
+				'/(?<=\W)\+(.*?)\+(?=\W)/smxu'				=> '<small>\1</small>',
+				'/(?<=\W)↓(.*?)↓(?=\W)/smxu'					=> '<small>\1</small>',
 
-				'/\A(\w.*?)$(?=.{2})/msxu'							=> '<h1>\1</h1>',
+				'/\A(\w.*?)$(?=.{2})/msxu'						=> '<h1>\1</h1>',
 
 				'/        +\s*(.*?)$/msxu'						=> '<p class="epigraph">\1</p>',
 				'/  +\s*$/mxu'												=> '<br>',
@@ -29,17 +30,20 @@ class Markright
 						'<iframe class="youtube" width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>',
 				'/http:\/\/www\.youtube\.com\/(?:watch\?v=|v\/)(\w+)\S*/' =>		// http://www.youtube.com/watch?v=SAJ_TzLqy1U
 						'<iframe class="youtube" width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>',
-				'/^(https?:\/\/\S+)$/'								=>				// Standalone images w/out title
+				'/^(https?:\/\/\S+)\s*$/'							=>				// Standalone images w/out title
 						'<img src="\1"/>',
-				'/^(https?:\/\/\S+)\s+(.*?)$/'				=>				// Standalone images w/title
+				'/^(https?:\/\/\S+)\s+(.*?)(?=\Z|\R{2,})/smux'	=>				// Standalone images w/title
 						'<figure><img src="\1"/><figcaption><p>\2</p></figcaption></figure>',
 
-				'/(\S+)\s+\((https?:\/\/\S+)\)/u'			=> '<a href="\2">\1</a>',
+					'/\[(.*?)\]\((https?:\/\/\S+?)\)/u'		=> '<a href="\2">\1</a>',
+					'/(\S+)\s*\((https?:\/\/\S+?)\)/u'		=> '<a href="\2">\1</a>',
 				'/(mailto:(\S+))/u'										=> '<a href="\1">✉ \2</a>',
 
 				'/^\s*§(\d+)\s+(.*?)$/umsx'						=> '<h\1>\2</h\1>',
 
-				'/(\A|\R\R+)([—\p{L}\p{N}].*?)(?=\Z|\R\R+)/smxu' => '\1<p>\2</p>' // goes last
+				'/^[-—\s]{2,}$/sumx'									=> '<hr>',
+
+						'/(\A|\R\R+)([—\p{L}\p{N}].*?)(?=\Z|\R\R+)/smxu' => '\1<p>\2</p>' // goes last
 
 			];
 	}

@@ -18,9 +18,14 @@
 
 	<!-- build:vulcanized elements/elements.vulcanized.html -->
 	<link rel="import" href="elements/elements.html">
+	<link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+	<link rel="import" href="bower_components/font-roboto/roboto.html">
+	<link rel="import" href="bower_components/core-icons/core-icons.html">
+	<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 	<!-- endbuild-->
 
 	<!-- build:css styles/main.css -->
+	<link rel="stylesheet" href="styles/proximanova-opentype.css">
 	<link rel="stylesheet" href="styles/normalize.css">
 	<link rel="stylesheet" href="styles/main.css">
 	<!-- endbuild-->
@@ -28,9 +33,16 @@
 
 <body unresolved>
 
-	<mudasobwa-fortune url="/tr/short_t" buttons="prev" previcon="refresh"></mudasobwa-fortune>
-
-	<div style="margin-top: 60px;">&nbsp;</div>
+	<core-toolbar id="toolbar">
+		<paper-icon-button icon="menu" onclick="goHome()"></paper-icon-button>
+		<div flex>Записки когнитивного сумоиста</div>
+		<!--core-icon-button icon="more" on-tap="{{moreAction}}"></core-icon-button-->
+		<script>
+				function goHome() {
+					document.location.href = '/';
+				};
+		</script>
+	</core-toolbar>
 
 	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch apiurlprefix="/p/"></mudasobwa-article>
 

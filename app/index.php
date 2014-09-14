@@ -89,7 +89,7 @@ $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $r
 			'title' => (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '',
 			'prev' => jsonFor($cache->prev($id)),
 			'next' => jsonFor($cache->next($id)),
-			'text' => $text
+			'text' => \Mudasobwa\Eblo\Markright::yo($text)
 		);
 	} else {
 		$files = array();
