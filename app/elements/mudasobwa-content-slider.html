@@ -2,8 +2,8 @@
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="../bower_components/polymer-fontawesome/polymer-fontawesome.html">
 
-<!-- expects the answer in the form {html:'',prev:'',next:''} -->
-<polymer-element name="mudasobwa-content-loader" attributes="article url title prefetch next prev">
+<!-- expects the answer in the form {html:'',title:'',prev:'',next:''} -->
+<polymer-element name="mudasobwa-content-loader" attributes="url article title prefetch next prev">
   <template>
 		<style>
 			:host {
@@ -16,21 +16,31 @@
 			on-core-response="{{ contentLoaded }}"
 			handleAs="json">
 		</core-ajax>
-		<template id="prevnext" if="{{ prefetch == 'true' }}">
-			<mudasobwa-content-loader id="prev" prefetch="false" url="{{ prev }}"></mudasobwa-content-loader>
-			<mudasobwa-content-loader id="next" prefetch="false" url="{{ next }}"></mudasobwa-content-loader>
+		<template id="prevnext" if="{{ prefetch }}">
+			<mudasobwa-content-loader id="prev" url="{{ prev }}"></mudasobwa-content-loader>
+			<mudasobwa-content-loader id="next" url="{{ next }}"></mudasobwa-content-loader>
 		</template>
+
   </template>
 
 	<script>
 		Polymer('mudasobwa-content-loader', {
+			initialized: false, // this is ugly
 			created: function() {
+				this.url = null;
+				this.prefetch = false;
 				this.article = '';
-				this.next = null;
+				this.title = '';
 				this.prev = null;
+				this.next = null;
 			},
 			attached: function() {
 				this.reload();
+			},
+			reload: function() {
+				if(typeof this.url === 'string') {
+					this.$.current.go();
+				}
 			},
 			contentLoaded: function() {
 				this.article = this.$.current.response.html;
@@ -38,54 +48,64 @@
 				this.prev = this.$.current.response.prev;
 				this.next = this.$.current.response.next;
 
-				if(this.prefetch == 'true') {
-					this.$.prev.reload();
-					this.$.next.reload();
+				if(!this.initialized) {
+					this.initialized = true;
+					if(this.prefetch) {
+						this.$.prev.reload();
+						this.$.next.reload();
+						this.saveState(); // FIXME Get rid of the “native” state in history (now there are two appeared)
+					}
 				}
 			},
-			reload: function() {
-				this.$.current.go();
-			},
-			goto: function(url) {
-				this.url = url;
-				this.reload();
-			},
 			step: function(forward) {
-				this.url = (true === forward) ? this.next: this.prev;
+				this.url = ((true === forward) ? this.next: this.prev);
 				this.reload();
 			},
 			dup: function(other) {
 				if(typeof other !== 'undefined') {
-					this.url = other.url;
+					var url = other.url;
 					this.next = other.next;
 					this.prev = other.prev;
+					this.url = url; // this must be after next/prev setting (to prevent re-autosetting)
 					this.title = other.title;
 					this.article = other.article;
 				} else {
-					this.next = this.prev = this.title = this.article = this.url = null;
+					this.url = this.next = this.prev = this.title = this.article = null;
+				}
+			},
+			urlChanged: function() {
+				if(this.prefetch) {
+					this.fire("changed", { url: this.url });
 				}
 			},
 			yo: function(previous) {
-				if(this.prefetch !== 'true') {
-					this.reload();
-					return;
-				}
-				if(previous === true) {
-					this.$.next.dup(this);
-					if(this.$.prev) {
-						this.dup(this.$.prev);
-					} else {
-						this.step(false);
-					}
-					this.$.prev.step(false);
+				if(!this.prefetch) {
+					this.step(previous !== true);
 				} else {
-					this.$.prev.dup(this);
-					if(this.$.next) {
-						this.dup(this.$.next);
+					if(previous === true) {
+						this.$.next.dup(this);
+						this.dup(this.$.prev);
+						this.$.prev.step(false);
 					} else {
-						this.step(true);
+						this.$.prev.dup(this);
+						this.dup(this.$.next);
+						this.$.next.step(true);
 					}
-					this.$.next.step(true);
+				}
+
+				this.saveState();
+			},
+			saveState: function() {
+				if(this.url) {
+					var currUrl = this.url;
+					var currState = currUrl.replace(new RegExp('^/p/'), '');
+					var currTitle = this.title;
+					History.pushState({
+						state: currState,
+						url: currUrl,
+						title: currTitle,
+						sender: 'mudasobwa:yo'
+					}, currTitle, currState);
 				}
 			}
 		});
@@ -99,7 +119,7 @@
 				width: 100%;
 				height: 100%;
 				opacity: 0.5;
-				transition: opacity 400ms ease-in-out;
+				transition: opacity 800ms ease-in-out;
 				cursor: pointer;
 			}
 			:host(:hover) { opacity: 1; }
@@ -112,7 +132,7 @@
 	</template>
 </polymer-element>
 
-<polymer-element name="html-echo" attributes="html">
+<polymer-element name="html-echo" attributes="html url">
 	<script>
 		Polymer('html-echo', {
 			htmlChanged: function() {
@@ -123,19 +143,19 @@
 	</script>
 </polymer-element>
 
-<polymer-element name="mudasobwa-content-slider" attributes="url title prefetch buttons previcon nexticon">
+<polymer-element name="mudasobwa-content-slider" attributes="url title buttons previcon nexticon">
 	<template>
 		<style>
 			:host {
 				display: block;
 				position: relative;
 				opacity: 0.8;
-				transition: opacity .5s,transform 1s;
+				transition: opacity .5s, transform 1s;
 			}
 			div.slider-content { margin: 0 4em; padding: 0; }
 		</style>
 		<div class="slider-container">
-			<template if="{{ buttons == 'prev' || buttons == 'both' }}">
+			<template if="{{ buttons === 'prev' || buttons === 'both' }}">
 				<style>
 					div.slider-nav-left { margin: 0; padding: 0; position: absolute; top: 0; left: 0.4em; }
 				</style>
@@ -143,7 +163,7 @@
 					<opaque-button id="prevbtn" on-mouseover="{{ buttonHover }}" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button>
 				</div>
 			</template>
-			<template if="{{ buttons == 'next' || buttons == 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
+			<template if="{{ buttons === 'next' || buttons === 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
 				<style>
 					div.slider-nav-right { margin: 0; padding: 0; position: absolute; top: 0; right: 0.4em; }
 				</style>
@@ -153,8 +173,8 @@
 			</template>
 
 			<div class="slider-content">
-				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch="{{ prefetch }}"></mudasobwa-content-loader>
-				<html-echo id="placeholder" html="{{ article }}"></html-echo>
+				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch></mudasobwa-content-loader>
+				<html-echo id="placeholder" html="{{ article }}" url="{{ url }}"></html-echo>
 			</div>
 		</div>
 		<!--notification-elements
@@ -176,6 +196,12 @@
 					this.$.prevbtn.style.display = ('null' === String(this.$.content.prev)) ? 'none' : 'block';
 				if(typeof this.$.nextbtn !== 'undefined')
 					this.$.nextbtn.style.display = ('null' === String(this.$.content.next)) ? 'none' : 'block';
+			},
+			goto: function(url) {
+				if(this.url !== url) {
+					this.url = url;
+					this.$.content.reload();
+				}
 			},
 			buttonClick: function(event, detail, sender) {
 				this.$.content.yo(sender.id === "prevbtn");
