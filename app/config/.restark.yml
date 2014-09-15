@@ -1,3 +1,6 @@
+main:
+  domain           : 'mudasobwa.ru'
+
 template:
   article          : 'index.html'
   regex            : '^(\d{4}(\-\d{1,2}){0,5}\+?)+$'
@@ -5,6 +8,8 @@ template:
 settings :
   debug            : 1
   memos            : 5000
+  rss              : 10
+  rssformat        : 'RSS'
 
 data :
   dir              : 'data'

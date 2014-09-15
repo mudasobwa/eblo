@@ -6,6 +6,7 @@ if (php_sapi_name() === 'cli-server' && is_file($filename)) { // TODO
 }
 
 require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__.'/php.src/Feeder.php';
 
 use \Symfony\Component\HttpKernel\HttpKernelInterface,
 	\Symfony\Component\HttpFoundation\Response,
@@ -21,6 +22,8 @@ $app = new Silex\Application();
 
 // Not more than 99 posts per day, not more than 99 parts of the post
 $app['restark.config'] = \Spyc::YAMLLoad(__DIR__.'/config/.restark.yml');
+$app['restark.atom'] = '/cache/atom.xml';
+$app['restark.atomfile'] = __DIR__.$app['restark.atom'];
 $app['restark.template'] = \file_get_contents($app['restark.config']['template']['article']);
 $app['restark.regex'] = $app['restark.config']['template']['regex'];
 
@@ -132,6 +135,44 @@ $app->get('/', function (Silex\Application $app) {
 /* ========================                TAGS                 =================================== */
 /* ================================================================================================ */
 
+/* ================================================================================================ */
+/* ========================                RSS                  =================================== */
+/* ================================================================================================ */
 
+/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
+$app->get('/rss', function (Silex\Application $app) {
+	if(!file_exists($app['restark.atomfile'])) {
+		$rss = new UniversalFeedCreator();
+		$rss->useCached();
+		$rss->title = "Mudasobwa’s Eblo";
+		$rss->description = "Ipsissima Verba";
+		$rss->link = "http://" . $app['restark.config']['main']['domain'];
+		$rss->syndicationURL = "http://" . $app['restark.config']['main']['domain'] . "/rss";
+
+		$image = new FeedImage();
+		$image->title = "Buggy";
+		$image->url = "http://" . $app['restark.config']['main']['domain'] . "/cache/buggy.jpg";
+		$image->link = "http://" . $app['restark.config']['main']['domain'];
+		$image->description = "Ipsissima Verba.";
+		$rss->image = $image;
+
+		$cache = Cache::instance();
+		foreach($cache->files($app['restark.config']['settings']['rss']) as $f) {
+			$item = new FeedItem();
+			$text = $cache->content($f);
+			$item->title = (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '';
+			$item->link = "http://" . $app['restark.config']['main']['domain'] . "/" . $f;
+			$item->description = \Mudasobwa\Eblo\Markright::yo($text);
+			$item->date = Cache::getDateByFileName($f);
+			$item->source = "http://" . $app['restark.config']['main']['domain'];
+			$item->authorEmail = "am@mudasobwa.ru";
+			$item->author = "Aleksei “Mudasobwa” Matiushkin";
+			$rss->addItem($item);
+		}
+
+		$rss->saveFeed($app['restark.config']['settings']['rssformat'], $app['restark.atomfile']);
+	}
+	return $app->redirect($app['restark.atom']);
+});
 
 $app->run();

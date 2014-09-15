@@ -9,6 +9,7 @@ app/composer.lock
 app/development.log
 app/vendor
 app/bin
+app/cache/*.xml
 app/styles/*.css
 app/styles/*.css.map
 data

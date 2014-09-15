@@ -72,6 +72,10 @@ final class Cache
 
 		return 0;
 	}
+
+	public static function getDateByFileName($f) {
+		return implode('-', array_slice(explode('-', $f),0,3));
+	}
 /* ================================================================================================ */
 /* ========================               FILES                 =================================== */
 /* ================================================================================================ */
@@ -95,14 +99,16 @@ final class Cache
 
 	/**
 	 * Getter for a file list.
+	 * @param count int the amount of files to get
+	 * @param offset int the offset to retrieve files from
 	 * @return array the list of files in the data directory.
 	 */
-	public function files() {
+	public function files($count = 0, $offset = 0) {
 		if(is_null($this->files)) {
 			$this->files = \array_filter(\scandir($this->datadir()), function($f) { return !is_dir($this->datadir().$f); } );
 			\usort($this->files, $this->config['data']['sorter']);
 		}
-		return $this->files;
+		return $count > 0 ? array_slice($this->files, $offset, $count) : $this->files;
 	}
 
 	/**

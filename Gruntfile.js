@@ -249,7 +249,7 @@ module.exports = function (grunt) {
 		copy: {
 			main: {
 				files: [
-					{expand: true, cwd: '<%= yeoman.app %>', src: ['index.php' , 'php.src/**', 'vendor/**', 'config/**' ], dest: '<%= yeoman.dist %>'},
+					{expand: true, cwd: '<%= yeoman.app %>', src: ['index.php' , 'php.src/**', 'vendor/**', 'config/**', 'cache/**' ], dest: '<%= yeoman.dist %>'},
 					{expand: true, cwd: 'vendor/history.js/scripts/bundled/html4+html5/', src: ['native.history.js' ], dest: '<%= yeoman.dist %>/scripts'}
 				]
 			},
