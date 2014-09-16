@@ -12,7 +12,14 @@ body {
 }
 
 header { height: 60px; }
-footer { height: 300px; padding: 1em; background-color: $violet; }
+footer {
+	margin-top: 5em;
+	border-top: 3px double $violet;
+	height: 300px;
+	padding: 1em;
+	background-color: $violet;
+}
+
 
 #article {
 	padding: 0 1em;
@@ -32,10 +39,30 @@ footer { height: 300px; padding: 1em; background-color: $violet; }
 	right: 1em;
 }
 
+#socialbuttons {
+	position: absolute;
+	right: 20em;
+}
+
 html /deep/ h1 {
 	border-left: 6px solid $violet;
 	padding: 0.2em 1em;
 	background: $lightestgray;
+}
+
+html /deep/ div.schild {
+	font-size: 220%;
+	font-weight: 600;
+	background: black;
+	color: white;
+	text-shadow: 3px 3px 5px gray;
+	padding: 1em;
+	border-radius: 10px;
+	font-family: fantasy;
+}
+
+html /deep/ h1, html /deep/ div.schild {
+	margin-top: 40px;
 }
 
 html /deep/ blockquote {
@@ -107,3 +134,4 @@ html /deep/ p.epigraph {
 	font-style: italic;
 	color: $gray;
 }
+

@@ -23,6 +23,9 @@
 	<link rel="import" href="bower_components/core-icons/core-icons.html">
 	<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 	<link rel="import" href="bower_components/polymer-github-card/dist/polymer-github-card.html">
+	<link rel="import" href="bower_components/twitter-button/dist/twitter-button.html">
+	<link rel="import" href="bower_components/facebook-button/dist/facebook-button.html">
+	<link rel="import" href="bower_components/github-button/dist/github-button.html">
 	<!-- endbuild-->
 
 	<link rel="stylesheet" href="bower_components/paper-toast/paper-toast.css">
@@ -52,6 +55,22 @@
 	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch apiurlprefix="/p/"></mudasobwa-article>
 
 	<footer>
+		<div id="socialbuttons">
+			<facebook-button href="{{ getHref }}">
+				<script>
+					function getHref() { return document.location.href; }
+				</script>
+			</facebook-button>
+			<br>
+			<twitter-button user="mudasobwa" hashtag="{{ getTags }}" href="{{ getHref }}">
+				<script>
+					function getHref() { return document.location.href; }
+					function getTags() { return "mudasobwa"; } // FIXME
+				</script>
+			</twitter-button>
+			<br>
+			<github-button user="mudasobwa" repo="eblo" type="fork"></github-button>
+		</div>
 		<polymer-github-card id='githubcard' user="mudasobwa"></polymer-github-card>
 	</footer>
 

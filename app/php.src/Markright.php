@@ -20,6 +20,7 @@ class Markright
 				'/(?<=\W)↓(.*?)↓(?=\W)/smxu'					=> '<small>\1</small>',
 
 				'/\A(\w.*?)$(?=.{2})/msxu'						=> '<h1>\1</h1>',
+				'/\A(\w.*?)$(?=\Z)/msxu'				  		=> '<div class="schild">\1</div>',
 
 				'/        +\s*(.*?)$/msxu'						=> '<p class="epigraph">\1</p>',
 				'/  +\s*$/mxu'												=> '<br>',
