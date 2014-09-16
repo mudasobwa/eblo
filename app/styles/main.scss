@@ -11,6 +11,9 @@ body {
   color: #333;
 }
 
+header { height: 60px; }
+footer { height: 300px; padding: 1em; background-color: $violet; }
+
 #article {
 	padding: 0 1em;
 	max-width: 860px;
@@ -22,6 +25,11 @@ body {
 	color: $almostwhite;
 	fill: $almostwhite;
 	margin-bottom: 2em;
+}
+
+#githubcard {
+	position: absolute;
+	right: 1em;
 }
 
 html /deep/ h1 {

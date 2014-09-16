@@ -12,7 +12,12 @@
 	<script>
 		Polymer('mudasobwa-parser', {
 			inputChanged: function() {
-				this.innerHTML = this.input;
+				if (typeof this.input === 'string') {
+					this.input = [this.input];
+				}
+				this.innerHTML = this.input.map(function(el) {
+					return '<article>' + el + '</article>';
+				}).join('<br><hr><br>');
 			}
 		});
 	</script>

@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="../bower_components/polymer-fontawesome/polymer-fontawesome.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="mudasobwa-parser.html">
 
 <!-- expects the answer in the form {text:'',title:'',prev:'',next:''} -->
@@ -158,21 +159,19 @@
 					div.slider-nav-right { margin: 0; padding: 0; position: absolute; top: 0; right: 0.4em; }
 				</style>
 				<div class="slider-nav-right">
-					<opaque-button id="nextbtn" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button>
+					<opaque-button id="nextbtn" on-mouseover="{{ buttonHover }}" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button>
 				</div>
 			</template>
+
+			<paper-toast id="prevnexthint" role="alert" text="">
+				<mudasobwa-parser id="hintrender" input=""></mudasobwa-parser>
+			</paper-toast>
 
 			<div class="slider-content">
 				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch></mudasobwa-content-loader>
 				<mudasobwa-parser id="placeholder" input="{{ article }}" url="{{ url }}"></mudasobwa-parser>
 			</div>
 		</div>
-		<!--notification-elements
-				id="growl"
-				header="Meooow!"
-				body="I'm the Octocat!"
-				icon="http://forum.webflow.com/plugins/emoji/images/octocat.png">
-		</notification-elements-->
 	</template>
 	<script>
 		Polymer('mudasobwa-content-slider', {
@@ -197,7 +196,8 @@
 				this.$.content.yo(sender.id === "prevbtn");
 			},
 			buttonHover: function(event, detail, sender) {
-				// this.$.growl.notify(); // = this.$.content.url;
+				this.$.hintrender.input = (sender.id === "prevbtn" ? this.$.content.$.prev.title : this.$.content.$.next.title);
+				this.$.prevnexthint.show();
 			}
 		});
 	</script>

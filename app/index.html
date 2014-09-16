@@ -22,7 +22,10 @@
 	<link rel="import" href="bower_components/font-roboto/roboto.html">
 	<link rel="import" href="bower_components/core-icons/core-icons.html">
 	<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+	<link rel="import" href="bower_components/polymer-github-card/dist/polymer-github-card.html">
 	<!-- endbuild-->
+
+	<link rel="stylesheet" href="bower_components/paper-toast/paper-toast.css">
 
 	<!-- build:css styles/main.css -->
 	<link rel="stylesheet" href="styles/proximanova-opentype.css">
@@ -33,20 +36,24 @@
 
 <body unresolved>
 
-	<core-toolbar id="toolbar">
-		<paper-icon-button icon="menu" onclick="goHome()"></paper-icon-button>
-		<div flex>Записки когнитивного сумоиста</div>
-		<!--core-icon-button icon="more" on-tap="{{moreAction}}"></core-icon-button-->
-		<script>
-				function goHome() {
-					document.location.href = '/';
-				};
-		</script>
-	</core-toolbar>
+	<header>
+		<core-toolbar id="toolbar">
+			<paper-icon-button icon="menu" onclick="goHome()"></paper-icon-button>
+			<div flex>Записки когнитивного сумоиста</div>
+			<!--core-icon-button icon="more" on-tap="{{moreAction}}"></core-icon-button-->
+			<script>
+					function goHome() {
+						document.location.href = '/';
+					};
+			</script>
+		</core-toolbar>
+	</header>
 
 	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch apiurlprefix="/p/"></mudasobwa-article>
 
-</x-modal>
+	<footer>
+		<polymer-github-card id='githubcard' user="mudasobwa"></polymer-github-card>
+	</footer>
 
 	<!-- build:js scripts/eblo.js -->
 	<script src="scripts/app.js"></script>
