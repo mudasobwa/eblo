@@ -2,7 +2,7 @@ main:
   domain           : 'mudasobwa.ru'
 
 template:
-  article          : 'index.html'
+  article          : 'index.tmpl'
   regex            : '^(\d{4}(\-\d{1,2}){0,5}\+?)+$'
 
 settings :

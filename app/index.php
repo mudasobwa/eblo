@@ -153,7 +153,7 @@ $app->get('/rss', function (Silex\Application $app) {
 		$image->title = "Buggy";
 		$image->url = "http://" . $app['restark.config']['main']['domain'] . "/cache/buggy.jpg";
 		$image->link = "http://" . $app['restark.config']['main']['domain'];
-		$image->description = "Ipsissima Verba.";
+		$image->description = "Ipsissima Verba";
 		$rss->image = $image;
 
 		$cache = Cache::instance();

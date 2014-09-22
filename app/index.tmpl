@@ -7,14 +7,18 @@
 
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Polymer WebApp</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Ipsissima Verba</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/x-icon" href="http://localhost:5000/favicon.ico" />
 	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
 	<script src="bower_components/platform/platform.js"></script>
 	<script src="scripts/native.history.js"></script>
+	<!--[if lt IE 9]>
+	<script src="scripts/html5-3.6-respond-1.1.0.min.js"></script>
+	<![endif]-->
 
 	<!-- build:vulcanized elements/elements.vulcanized.html -->
 	<link rel="import" href="elements/elements.html">
@@ -28,11 +32,11 @@
 	<link rel="import" href="bower_components/github-button/dist/github-button.html">
 	<!-- endbuild-->
 
-	<link rel="stylesheet" href="bower_components/paper-toast/paper-toast.css">
-
 	<!-- build:css styles/main.css -->
 	<link rel="stylesheet" href="styles/proximanova-opentype.css">
 	<link rel="stylesheet" href="styles/normalize.css">
+	<link rel="stylesheet" href="styles/verekia.css">
+	<link rel="stylesheet" href="bower_components/paper-toast/paper-toast.css">
 	<link rel="stylesheet" href="styles/main.css">
 	<!-- endbuild-->
 </head>
@@ -52,17 +56,18 @@
 		</core-toolbar>
 	</header>
 
-	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch apiurlprefix="/p/"></mudasobwa-article>
+	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch></mudasobwa-article>
 
 	<footer>
+		<mudasobwa-hotlinks></mudasobwa-hotlinks>
 		<div id="socialbuttons">
-			<facebook-button href="{{ getHref }}">
+			<facebook-button href="{{ getHref }}" url="{{ getHref }}">
 				<script>
 					function getHref() { return document.location.href; }
 				</script>
 			</facebook-button>
 			<br>
-			<twitter-button user="mudasobwa" hashtag="{{ getTags }}" href="{{ getHref }}">
+			<twitter-button user="mudasobwa" hashtag="{{ getTags }}" href="{{ getHref }}" url="{{ getHref }}">
 				<script>
 					function getHref() { return document.location.href; }
 					function getTags() { return "mudasobwa"; } // FIXME

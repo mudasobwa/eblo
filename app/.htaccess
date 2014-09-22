@@ -1,13 +1,13 @@
 # Apache configuration file
 # httpd.apache.org/docs/2.2/mod/quickreference.html
 
-# Note .htaccess files are an overhead, this logic should be in your Apache
+# Note .htaccess.verekia files are an overhead, this logic should be in your Apache
 # config if possible: httpd.apache.org/docs/2.2/howto/htaccess.html
 
 # Techniques in here adapted from all over, including:
-#   Kroc Camen: camendesign.com/.htaccess
+#   Kroc Camen: camendesign.com/.htaccess.verekia
 #   perishablepress.com/press/2006/01/10/stupid-htaccess-tricks/
-#   Sample .htaccess file of CMS MODx: modxcms.com
+#   Sample .htaccess.verekia file of CMS MODx: modxcms.com
 
 
 # ----------------------------------------------------------------------
@@ -460,7 +460,7 @@ AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
 # ----------------------------------------------------------------------
 
 # To avoid displaying the exact version number of Apache being used, add the
-# following to httpd.conf (it will not work in .htaccess):
+# following to httpd.conf (it will not work in .htaccess.verekia):
 # ServerTokens Prod
 
 # "-Indexes" will have Apache block users from browsing folders without a
@@ -496,7 +496,7 @@ AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
 #
 # IF REGISTER_GLOBALS DIRECTIVE CAUSES 500 INTERNAL SERVER ERRORS:
 #
-# Your server does not allow PHP directives to be set via .htaccess. In that
+# Your server does not allow PHP directives to be set via .htaccess.verekia. In that
 # case you must make this change in your php.ini file instead. If you are
 # using a commercial web host, contact the administrators for assistance in
 # doing this. Not all servers allow local php.ini files, and they should
@@ -513,7 +513,7 @@ AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
 # php_flag magic_quotes_gpc Off
 
 # Do not show you are using PHP
-# Note: Move this line to php.ini since it won't work in .htaccess
+# Note: Move this line to php.ini since it won't work in .htaccess.verekia
 # php_flag expose_php Off
 
 # Level of log detail - log all errors

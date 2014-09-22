@@ -1,0 +1,37 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="mudasobwa-hotlinks" attributes="">
+	<template>
+		<style>
+			:host {
+				float: left;
+				color: white;
+			}
+			:host ul li {
+				padding: 0 0 0.6em 2em;
+				margin-top: -0.6em;
+			}
+			:host ul {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				font-size: 86%;
+			}
+
+			:host a, :host a:visited, :host a:hover, :host a:active {
+				color: white !important;
+			}
+		</style>
+		<ul>
+			<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
+			<li><a href="http://rocket-science.ru">Rubies and Pearls</a></li>
+			<li><br></li>
+			<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
+		</ul>
+	</template>
+	<script>
+		Polymer('mudasobwa-hotlinks', {
+
+		});
+	</script>
+</polymer-element>

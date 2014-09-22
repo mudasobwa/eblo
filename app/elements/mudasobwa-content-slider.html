@@ -1,8 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="../bower_components/polymer-fontawesome/polymer-fontawesome.html">
-<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../bower_components/core-tooltip/core-tooltip.html">
 <link rel="import" href="mudasobwa-parser.html">
 
 <!-- expects the answer in the form {text:'',title:'',prev:'',next:''} -->
@@ -157,9 +155,6 @@
 					#prevbtn { left: 0.4em; }
 				</style>
 				<opaque-button id="prevbtn" on-mouseover="{{ buttonHover }}" on-click="{{ buttonClick }}"><font-awesome icon="{{ previcon }}"></font-awesome></opaque-button>
-				<!--div tip id="prev-tooltip">
-					<img src="profile.jpg">Foo <b>Bar</b> - <a href="#">@baz</a>
-				</div-->
 			</template>
 			<template if="{{ buttons === 'next' || buttons === 'both' }}"> <!-- FIXME ------- WHY /next/.test(buttons) sucks??? -->
 				<style>
@@ -167,8 +162,6 @@
 				</style>
 				<opaque-button id="nextbtn" on-mouseover="{{ buttonHover }}" on-click="{{ buttonClick }}"><font-awesome icon="{{ nexticon }}"></font-awesome></opaque-button>
 			</template>
-
-			<!--paper-toast id="prevnexthint" role="alert" class="capsule" text=""></paper-toast-->
 
 			<div class="slider-content">
 				<mudasobwa-content-loader id="content" url="{{ url }}" article="{{ article }}" prefetch></mudasobwa-content-loader>
@@ -184,13 +177,12 @@
 			},
 			articleChanged: function() {
 				this.title = this.$.content.title;
-				if(typeof this.$.prevbtn !== 'undefined')
+				if(typeof this.$.prevbtn !== 'undefined') {
 					this.$.prevbtn.style.display = ('null' === String(this.$.content.prev)) ? 'none' : 'block';
-				if(typeof this.$.nextbtn !== 'undefined')
+				}
+				if(typeof this.$.nextbtn !== 'undefined') {
 					this.$.nextbtn.style.display = ('null' === String(this.$.content.next)) ? 'none' : 'block';
-
-				this.$.prevtooltip.label = this.$.content.$.prev.title;
-				this.$.nexttooltip.label = this.$.content.$.next.title;
+				}
 			},
 			goto: function(url) {
 				if(this.url !== url) {
@@ -203,8 +195,6 @@
 			},
 			buttonHover: function(event, detail, sender) {
 				/*
-				this.$.prevnexthint.text = (sender.id === "prevbtn" ? this.$.content.$.prev.title : this.$.content.$.next.title);
-				this.$.prevnexthint.show();
 			 */
 			}
 		});

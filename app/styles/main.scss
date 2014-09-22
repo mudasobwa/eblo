@@ -7,7 +7,7 @@ $lightestgray : rgba(234,239,242,.5);
 
 body {
   background: rgba(234,239,242,.25);
-  font-family: ProximaNovaRegular, Helvetica, Arial, sans-serif;
+  font: 12pt/150% ProximaNovaRegular, Verdana, Helvetica, Helvetica Neue, Arial, sans-serif;
   color: #333;
 }
 
@@ -52,6 +52,7 @@ html /deep/ h1 {
 
 html /deep/ div.schild {
 	font-size: 220%;
+	line-height: 130%;
 	font-weight: 600;
 	background: black;
 	color: white;
@@ -67,8 +68,22 @@ html /deep/ h1, html /deep/ div.schild {
 
 html /deep/ blockquote {
 	border-left: 6px solid $blue;
+	line-height: 120%;
 	padding: 0.2em 1em;
 	background: $lightestgray;
+}
+
+html /deep/ a {
+	color: $blue;
+	text-decoration: none;
+}
+
+html /deep/ a:visited {
+	color: $violet;
+}
+
+html /deep/ a:hover, html /deep/ a:active {
+	text-decoration: underline;
 }
 
 html /deep/ blockquote p {
