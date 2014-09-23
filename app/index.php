@@ -87,12 +87,12 @@ $app->get('/{id}/{len}/{offset}', function (Silex\Application $app, Request $req
 $app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
 	$cache = Cache::instance();
 	if($cache->locate($id)) {
-		$text = $cache->content($id);
+		$content = $cache->content($id);
 		$result = array(
-			'title' => (\preg_match('/\A(.*)/mxu', $text, $m)) ? $m[0] : '',
+			'title' => $content['title'],
 			'prev' => jsonFor($cache->prev($id)),
 			'next' => jsonFor($cache->next($id)),
-			'text' => \Mudasobwa\Eblo\Markright::yo($text)
+			'text' => \Mudasobwa\Eblo\Markright::yo($content['content'])
 		);
 	} else {
 		$files = array();
@@ -134,6 +134,35 @@ $app->get('/', function (Silex\Application $app) {
 /* ================================================================================================ */
 /* ========================                TAGS                 =================================== */
 /* ================================================================================================ */
+
+/* ================================================================================================ */
+/* ========================               LEGACY                =================================== */
+/* ================================================================================================ */
+$app->get('/post/show/{id}', function (Silex\Application $app, $id) {
+	return $app->redirect(htmlFor(\array_reverse(Cache::instance()->files())[$id], true));
+})
+->assert('count', '\d+')
+;
+
+/* ================================================================================================ */
+/* ========================               RANDOM                =================================== */
+/* ================================================================================================ */
+/** Retrieves the content for random amount of files */
+$app->get('/r/{count}', function (Silex\Application $app, Request $req, $count) {
+	$files = Cache::instance()->files();
+	shuffle($files);
+	$files = \array_slice($files, 0, $count);
+	return new JsonResponse(
+		\array_map(function ($elem) {
+			return array(
+					'url'   => htmlFor($elem, true),
+					'title' => Cache::instance()->content($elem)['title']
+			);
+		}, $files)
+	);
+})
+->assert('count', '\d+')
+;
 
 /* ================================================================================================ */
 /* ========================                RSS                  =================================== */

@@ -19,7 +19,9 @@ footer {
 	padding: 1em;
 	background-color: $violet;
 }
-
+footer /deep/ * {
+	color: lighten($violet, 25%);
+}
 
 #article {
 	padding: 0 1em;
@@ -149,4 +151,3 @@ html /deep/ p.epigraph {
 	font-style: italic;
 	color: $gray;
 }
-

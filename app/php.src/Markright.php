@@ -31,7 +31,7 @@ class Markright
 						'<iframe class="youtube" width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>',
 				'/http:\/\/www\.youtube\.com\/(?:watch\?v=|v\/)(\w+)\S*/' =>		// http://www.youtube.com/watch?v=SAJ_TzLqy1U
 						'<iframe class="youtube" width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>',
-				'/^(https?:\/\/\S+)\s*$/'							=>				// Standalone images w/out title
+				'/^(https?:\/\/\S+)\s*(?:\Z|$)/smux'			=>				// Standalone images w/out title
 						'<img src="\1"/>',
 				'/^(https?:\/\/\S+)\s+(.*?)(?=\Z|\R{2,})/smux'	=>				// Standalone images w/title
 						'<figure><img src="\1"/><figcaption><p>\2</p></figcaption></figure>',
@@ -80,7 +80,7 @@ class Markright
 	}
 
 	private function lists($input) {
-		return preg_replace_callback('/(^([•◦])\s*(.*?)$)+(?=\z|\R\R+)/smxu', function($mch) {
+		return preg_replace_callback('/(^\s*([*•◦])\s*(.*?)$)+(?=\z|\R\R+)/smxu', function($mch) {
 			return	($mch[2] === '◦' ? '<ol>' : '<ul>') .
 						preg_replace('/^[•◦]\s*(.*?)$/msux', '<li>\1</li>', $mch[0]) .
 					($mch[2] === '◦' ? '</ol>' : '</ul>');
@@ -88,10 +88,10 @@ class Markright
 	}
 
 	public function parse($input) {
+		$input = $this->blockquotes($input);
 		$input = $this->lists($input);
 		$input = $this->datadefs($input);
 		$input = $this->tables($input);
-		$input = $this->blockquotes($input);
 
 		foreach ($this->rules as $re => $subst) {
 			$input = preg_replace($re, $subst, $input);

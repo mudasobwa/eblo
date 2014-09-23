@@ -155,18 +155,18 @@ final class Cache
 
 	/** Get [cached] file content.
 	 * @param name string file name to retrieve the content for.
-	 * @return string the file content of `null` if there is no such file.
+	 * @return array the file content of `null` if there is no such file.
 	 */
 	public function content($name) {
 		if(isset($this->content[$name])) {
 			$this->content[$name]['count'] = $this->content[$name]['count'] + 1;
-			return $this->content[$name]['content'];
+			return $this->content[$name];
 		}
 
 		if(!$this->locate($name))
 			return null;
 
-		$content = \file_get_contents($this->pathto($name));
+		$content = \trim(\file_get_contents($this->pathto($name)));
 
 		// FIXME Here we remove the last one. Have to think about the better algorithm.
 		if(\count($this->content) >= $this->config['settings']['memos']) {
@@ -181,8 +181,11 @@ final class Cache
 			unset($this->content[$idx]);
 		}
 
-		$this->content[$name] = array('count' => 1, 'content' => $content);
-		return $content;
+		return $this->content[$name] = array(
+				'count' => 1,
+				'content' => $content,
+				'title' => \preg_match('/\A(.*)/mxu', $content, $m) ? $m[0] : ''
+		);
 	}
 
 /* ================================================================================================ */

@@ -17,21 +17,32 @@
 				list-style: none;
 				font-size: 86%;
 			}
-
 			:host a, :host a:visited, :host a:hover, :host a:active {
 				color: white !important;
 			}
 		</style>
+		<core-ajax id="randomsLoader"
+							 auto
+							 url="/r/9"
+							 on-core-response="{{ contentLoaded }}"
+							 handleAs="json">
+		</core-ajax>
 		<ul>
 			<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
 			<li><a href="http://rocket-science.ru">Rubies and Pearls</a></li>
-			<li><br></li>
-			<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
 		</ul>
+		<ul id="randoms"></ul>
 	</template>
 	<script>
 		Polymer('mudasobwa-hotlinks', {
-
+			contentLoaded: function() {
+				var html = '<li style="header">Случайные ссылки</li>';
+				for (var e in this.$.randomsLoader.response) {
+					e = this.$.randomsLoader.response[e];
+					html += '<li><a href="' + e.url + '">' + e.title + '</a></li>';
+				}
+				this.$.randoms.innerHTML = html;
+			}
 		});
 	</script>
 </polymer-element>
