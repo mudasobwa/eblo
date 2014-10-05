@@ -13,6 +13,7 @@ settings :
 
 data :
   dir              : 'data'
+  metadir          : 'meta'
   sorter           : 'Mudasobwa\Eblo\Cache::sorter'
 
 tags :

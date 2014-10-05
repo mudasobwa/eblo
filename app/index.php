@@ -37,39 +37,53 @@ $app->register(new \Silex\Provider\MonologServiceProvider(), array(
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
-function htmlFor($file) {
-    return $file ? "/{$file}" : null;
+function htmlFor($file, $collection) {
+	if (!$collection) {
+		$collection = \Mudasobwa\Eblo\Cache::DEFAULT_COLLECTION;
+	}
+  return "/★/{$collection}" . ($file ? "/{$file}" : '');
 }
 
-function jsonFor($file) {
-    return $file ? "/p/{$file}" : null;
-}
-
-function buildResponse($files, $len, $offset) {
-	return array(
-		'prev' => $offset <= 0 ? null : jsonFor($files[\max($offset - $len, 0)]),
-		'next' => \count($files) > $offset + $len ? jsonFor($files[$offset + $len]) : null,
-		'text' => \array_map(
-				array('\Mudasobwa\Eblo\Markright', 'yo'),
-				\array_map(
-						array('\Mudasobwa\Eblo\Cache', 'load'),
-						\array_slice($files, $offset, $len)
-				)
-		),
-		'title' => '' // FIXME
-	);
+function jsonFor($file, $collection) {
+    return $file ? "/☆/{$collection}/{$file}" : null;
 }
 
 /* ================================================================================================ */
 /* ========================               POSTS                 =================================== */
 /* ================================================================================================ */
 
-
-$app->get('/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
-	// FIXME Not simple ID here
+/**
+ * Main handler for HTTP requests.
+ *
+ * Accepts `id`s in the following forms:
+ *   - `2000-12-24-1` for exact match
+ *   - `2000-12-24` for all the posts, dated Dec 24, 2000
+ *   - `2000-12-24+2000-12-23-20` for union of posts for Dec 24, 2000 and 20th post for Dec 23, 2000
+ *
+ * Accepts `offset` and `length` of the output (defaults to [0,9999])
+ */
+$app->get('/★/{collection}/{id}', function (Silex\Application $app, Request $req, $collection, $id) {
+	if(!$id) {
+		$id = Cache::instance()->collection($collection)[0];
+	}
 	return new Response(
-		\preg_replace('/'.MY_MUSTACHES_LEFT.'(.*?)'.MY_MUSTACHES_RIGHT.'/', jsonFor($id), $app['restark.template'])
+			\preg_replace('/(<(?:link|script)\s+(?:rel="\w+"\s+)?(?:href|src)=")(?=\w)/', '\1/', // FIXME dist preparation hotfix
+					\preg_replace('/'.MY_MUSTACHES_LEFT.'(.*?)'.MY_MUSTACHES_RIGHT.'/', jsonFor($id, $collection), $app['restark.template'])
+			)
 	);
+})
+->assert('collection', '\w+')
+->assert('id', $app['restark.regex'])
+->value('id', 0)
+;
+
+/**
+ * Main handler for ajax requests.
+ *
+ * @return JsonResponse the response
+ */
+$app->get('/☆/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
+	return $app->redirect("/☆/_/{$id}/{$len}/{$offset}");
 })
 ->assert('id', $app['restark.regex'])
 ->value('offset', 0)
@@ -84,78 +98,58 @@ $app->get('/{id}/{len}/{offset}', function (Silex\Application $app, Request $req
  *
  * Accepts `offset` and `length` of the output (defaults to [0,9999])
  */
-$app->get('/p/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $id, $len, $offset) {
-	$cache = Cache::instance();
-	if($cache->locate($id)) {
-		$content = $cache->content($id);
-		$result = array(
-			'title' => $content['title'],
-			'prev' => jsonFor($cache->prev($id)),
-			'next' => jsonFor($cache->next($id)),
-			'text' => \Mudasobwa\Eblo\Markright::yo($content['content'])
-		);
-	} else {
-		$files = array();
-		foreach(\explode('+', $id) as $file) {
-			$files = \array_merge($files, $cache->find($file));
-			if(\count($files) > $offset + $len) {
-				break;
-			}
-		}
-		$result = buildResponse($files, $len, $offset);
-	}
-
+$app->get('/☆/{collection}/{id}/{len}/{offset}', function (Silex\Application $app, Request $req, $collection, $id, $len, $offset) {
+	$data = \Mudasobwa\Eblo\Cache::yo($id, $collection);
+	$result = array_map(function ($item) use (&$data, $collection) {
+				$fixed = preg_match('/prev|next/', key($data)) === 0 ? $item : jsonFor($item, $collection);
+				next($data);
+				return $fixed;
+			}, $data
+	);
 	return (new JsonResponse($result))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 })
+->assert('collection', '\w+')
 ->assert('id', $app['restark.regex'])
 ->value('offset', 0)
 ->value('len', 9999) // FIXME the app would not return more than this value posts at once
 ;
 
-$app->get('/ps/{len}/{offset}', function (Silex\Application $app, Request $req, $len, $offset) {
-	return (new JsonResponse(
-		buildResponse(Cache::instance()->files(), $len, $offset)
-	))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-})
-->value('offset', 0)
-->value('len', 9999) // FIXME the app would not return more than this value posts at once
-;
-
-/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-// $app->get('/pc', function (Silex\Application $app) {
-// 	return $app->redirect(jsonFor(Cache::instance()->files()[0], true));
-// });
-
-/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-$app->get('/', function (Silex\Application $app) {
-	return $app->redirect(htmlFor(Cache::instance()->files()[0], true));
-});
-
 /* ================================================================================================ */
 /* ========================                TAGS                 =================================== */
 /* ================================================================================================ */
 
+/** Retrieves the collections list */
+$app->get('/▶', function (Silex\Application $app, Request $req) {
+	return new JsonResponse(
+			\array_map(function ($elem) {
+				return array(
+						'url'   => htmlFor('', $elem),
+						'title' => preg_replace_callback(
+								'/(?<=\A|\s)(\w)/',
+								function($s) { return mb_strtoupper($s[1]); },
+								preg_replace('/_/', ' ', $elem)
+						)
+				);
+			}, Cache::instance()->collections())
+	);
+});
+
 /* ================================================================================================ */
 /* ========================               LEGACY                =================================== */
 /* ================================================================================================ */
-$app->get('/post/show/{id}', function (Silex\Application $app, $id) {
-	return $app->redirect(htmlFor(\array_reverse(Cache::instance()->files())[$id], true));
-})
-->assert('count', '\d+')
-;
 
 /* ================================================================================================ */
 /* ========================               RANDOM                =================================== */
 /* ================================================================================================ */
 /** Retrieves the content for random amount of files */
-$app->get('/r/{count}', function (Silex\Application $app, Request $req, $count) {
-	$files = Cache::instance()->files();
+$app->get('/∀/{count}', function (Silex\Application $app, Request $req, $count) {
+	$files = Cache::instance()->collection();
 	shuffle($files);
 	$files = \array_slice($files, 0, $count);
 	return new JsonResponse(
 		\array_map(function ($elem) {
 			return array(
-					'url'   => htmlFor($elem, true),
+					'url'   => htmlFor($elem, null),
 					'title' => Cache::instance()->content($elem)['title']
 			);
 		}, $files)
@@ -203,5 +197,18 @@ $app->get('/rss', function (Silex\Application $app) {
 	}
 	return $app->redirect($app['restark.atom']);
 });
+
+/* ================================================================================================ */
+/* ========================           MAIN HANDLER              =================================== */
+/* ================================================================================================ */
+
+/** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
+$app->get('/{collection}', function (Silex\Application $app, Request $req, $collection) {
+	return $app->redirect(htmlFor('', $collection));
+})
+		->assert('collection', '\w+')
+		->value('collection', '')
+;
+
 
 $app->run();

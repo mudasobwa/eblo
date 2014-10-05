@@ -17,7 +17,7 @@ footer {
 	border-top: 3px double $violet;
 	height: 300px;
 	padding: 1em;
-	background-color: $violet;
+	background-color: lighten($violet, 50%);
 }
 footer /deep/ * {
 	color: lighten($violet, 25%);
@@ -56,9 +56,9 @@ html /deep/ div.schild {
 	font-size: 220%;
 	line-height: 130%;
 	font-weight: 600;
-	background: black;
+	background: $violet;
 	color: white;
-	text-shadow: 3px 3px 5px gray;
+	text-shadow: 3px 3px 5px darken($violet, 50%);
 	padding: 1em;
 	border-radius: 10px;
 	font-family: fantasy;

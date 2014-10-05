@@ -20,10 +20,9 @@ class Markright
 				'/(?<=\W)↓(.*?)↓(?=\W)/smxu'					=> '<small>\1</small>',
 
 				'/\A(\w.*?)$(?=.{2})/msxu'						=> '<h1>\1</h1>',
-				'/\A(\w.*?)$(?=\Z)/msxu'				  		=> '<div class="schild">\1</div>',
+				'/\A([\w«“‘—\-].*?)$(?=\Z)/msxu'				  		=> '<div class="schild">\1</div>',
 
 				'/        +\s*(.*?)$/msxu'						=> '<p class="epigraph">\1</p>',
-				'/  +\s*$/mxu'												=> '<br>',
 
 				'/✎\s*(\w+)/u'												=> '<span style="white-space: nowrap;"><a href="http://\1.livejournal.com/profile?mode=full"><img src="http://l-stat.livejournal.com/img/userinfo.gif" alt="[info]" style="border: 0pt none; vertical-align: bottom; padding-right: 1px;" height="17" width="17"></a><a href="http://\1.livejournal.com/?style=mine"><b>\1</b></a></span>',
 
@@ -32,7 +31,7 @@ class Markright
 				'/http:\/\/www\.youtube\.com\/(?:watch\?v=|v\/)(\w+)\S*/' =>		// http://www.youtube.com/watch?v=SAJ_TzLqy1U
 						'<iframe class="youtube" width="560" height="315" src="http://www.youtube.com/embed/\1" frameborder="0" allowfullscreen></iframe>',
 				'/^(https?:\/\/\S+)\s*(?:\Z|$)/smux'			=>				// Standalone images w/out title
-						'<img src="\1"/>',
+						'<img style="float:left; margin: 0 1em 1em 0;" src="\1"/>',
 				'/^(https?:\/\/\S+)\s+(.*?)(?=\Z|\R{2,})/smux'	=>				// Standalone images w/title
 						'<figure><img src="\1"/><figcaption><p>\2</p></figcaption></figure>',
 
@@ -42,6 +41,7 @@ class Markright
 
 				'/^\s*§(\d+)\s+(.*?)$/umsx'						=> '<h\1>\2</h\1>',
 
+				'/  +\s*$/mxu'												=> '<br>',
 				'/^[-—\s]{2,}$/sumx'									=> '<hr>',
 
 						'/(\A|\R\R+)([—\p{L}\p{N}].*?)(?=\Z|\R\R+)/smxu' => '\1<p>\2</p>' // goes last

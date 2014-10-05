@@ -6,6 +6,7 @@ use Behat\Behat\Context\ClosuredContextInterface,
 		Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode,
 		Behat\Gherkin\Node\TableNode;
+use Mudasobwa\Eblo\Cache;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -16,7 +17,7 @@ class FeatureContext extends BehatContext
 {
 	private $testInput = null, $testOutput = null;
 	private $config = null, $className = null;
-	private $content = null;
+	private $content = null, $fileName = null;
 
 	private $cacheInstance = null, $arr = null;
 
@@ -115,7 +116,7 @@ class FeatureContext extends BehatContext
 	 * @When /^the files list is requested$/
 	 */
 	public function theFilesListIsRequested() {
-		$this->arr = $this->cacheInstance->files();
+		$this->arr = $this->cacheInstance->collection();
 	}
 
 	/**
@@ -129,7 +130,7 @@ class FeatureContext extends BehatContext
 	 * @When /^the files list is requested for filter "([^"]*)"$/
 	 */
 	public function theFilesListIsRequestedForFilter($s) {
-		$this->arr = $this->cacheInstance->find($s);
+		$this->arr = $this->cacheInstance->find('allfiles', $s);
 	}
 
 	/**
@@ -137,6 +138,27 @@ class FeatureContext extends BehatContext
 	 */
 	public function inputStringIsProcessedWithParser() {
 		$this->testOutput = \Mudasobwa\Eblo\Markright::yo($this->testInput);
+	}
+
+	/**
+	 * @When /^the file "([^"]*)" is being looked up$/
+	 */
+	public function theFileIsBeingLookedUp($arg1) {
+		$this->fileName = $arg1;
+	}
+
+	/**
+	 * @When /^the neightborhood of size (\d+) is retrieven$/
+	 */
+	public function theNeightborhoodOfSizeIsRetrieven($arg1) {
+		$this->arr = $this->cacheInstance->lookup($this->fileName, \Mudasobwa\Eblo\Cache::DEFAULT_COLLECTION, 3, true);
+	}
+
+	/**
+	 * @Then /^the result should be var_dump’ed$/
+	 */
+	public function theResultShouldBeVarDumpEd() {
+		var_export($this->arr);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -243,3 +265,4 @@ class FeatureContext extends BehatContext
 	}
 
 }
+

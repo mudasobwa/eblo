@@ -33,9 +33,16 @@ Feature: Cache is responsible for caching the common data
     And the last element of array should be "2014-8-2-1"
 
   Scenario: Content of the file is successfully retrieven
-    Given the config is loaded from default location
-    When the Cache instance is retrieven
-    And the file "2014-8-6-1" is being loaded
-    Then the result should begin with "mudasobwa"
+	Given the config is loaded from default location
+	When the Cache instance is retrieven
+	And the file "2014-8-6-1" is being loaded
+	Then the result should begin with "mudasobwa"
+
+  Scenario: Neighborhood is successfully retrieven
+	Given the config is loaded from default location
+	When the Cache instance is retrieven
+	And the file "2014-8-6-1" is being looked up
+	And the neightborhood of size 3 is retrieven
+	Then the result should be var_dump’ed
 
 

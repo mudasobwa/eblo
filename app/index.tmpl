@@ -26,10 +26,6 @@
 	<link rel="import" href="bower_components/font-roboto/roboto.html">
 	<link rel="import" href="bower_components/core-icons/core-icons.html">
 	<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-	<link rel="import" href="bower_components/polymer-github-card/dist/polymer-github-card.html">
-	<link rel="import" href="bower_components/twitter-button/dist/twitter-button.html">
-	<link rel="import" href="bower_components/facebook-button/dist/facebook-button.html">
-	<link rel="import" href="bower_components/github-button/dist/github-button.html">
 	<!-- endbuild-->
 
 	<!-- build:css styles/main.css -->
@@ -58,25 +54,9 @@
 
 	<mudasobwa-article id="article" url="⦃url⦄" buttons="both" prefetch></mudasobwa-article>
 
+	<div style="clear:both;">&nbsp;</div>
 	<footer>
 		<mudasobwa-hotlinks></mudasobwa-hotlinks>
-		<div id="socialbuttons">
-			<facebook-button href="{{ getHref }}" url="{{ getHref }}">
-				<script>
-					function getHref() { return document.location.href; }
-				</script>
-			</facebook-button>
-			<br>
-			<twitter-button user="mudasobwa" hashtag="{{ getTags }}" href="{{ getHref }}" url="{{ getHref }}">
-				<script>
-					function getHref() { return document.location.href; }
-					function getTags() { return "mudasobwa"; } // FIXME
-				</script>
-			</twitter-button>
-			<br>
-			<github-button user="mudasobwa" repo="eblo" type="fork"></github-button>
-		</div>
-		<polymer-github-card id='githubcard' user="mudasobwa"></polymer-github-card>
 	</footer>
 
 	<!-- build:js scripts/eblo.js -->
