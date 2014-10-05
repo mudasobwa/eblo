@@ -6,6 +6,7 @@ $almostwhite : rgba(234,239,242,.9);
 $lightestgray : rgba(234,239,242,.5);
 
 body {
+	margin: 0; padding: 0;
   background: rgba(234,239,242,.25);
   font: 12pt/150% ProximaNovaRegular, Verdana, Helvetica, Helvetica Neue, Arial, sans-serif;
   color: #333;
@@ -68,13 +69,6 @@ html /deep/ h1, html /deep/ div.schild {
 	margin-top: 40px;
 }
 
-html /deep/ blockquote {
-	border-left: 6px solid $blue;
-	line-height: 120%;
-	padding: 0.2em 1em;
-	background: $lightestgray;
-}
-
 html /deep/ a {
 	color: $blue;
 	text-decoration: none;
@@ -86,6 +80,15 @@ html /deep/ a:visited {
 
 html /deep/ a:hover, html /deep/ a:active {
 	text-decoration: underline;
+}
+
+html /deep/ blockquote {
+	border-left: 6px solid $blue;
+	font-size: 94%;
+	color: darken($blue, 25%);
+	line-height: 130%;
+	padding: 0.2em 1em;
+	background: $lightestgray;
 }
 
 html /deep/ blockquote p {

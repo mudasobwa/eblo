@@ -99,7 +99,6 @@
 			saveState: function() {
 				if(this.url) {
 					var currUrl = this.url;
-					console.info(currUrl);
 					var currState = currUrl.replace(new RegExp('☆'), '★');
 					var currTitle = this.title;
 					History.pushState({

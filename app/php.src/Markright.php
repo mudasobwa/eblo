@@ -20,7 +20,7 @@ class Markright
 				'/(?<=\W)↓(.*?)↓(?=\W)/smxu'					=> '<small>\1</small>',
 
 				'/\A(\w.*?)$(?=.{2})/msxu'						=> '<h1>\1</h1>',
-				'/\A([\w«“‘—\-].*?)$(?=\Z)/msxu'				  		=> '<div class="schild">\1</div>',
+				'/\A\s*([^<].*?)$(?=\Z)/msxu'					=> '<div class="schild">\1</div>',
 
 				'/        +\s*(.*?)$/msxu'						=> '<p class="epigraph">\1</p>',
 
@@ -41,6 +41,7 @@ class Markright
 
 				'/^\s*§(\d+)\s+(.*?)$/umsx'						=> '<h\1>\2</h\1>',
 
+				'/\s+—/mxu'														=> ' —',
 				'/  +\s*$/mxu'												=> '<br>',
 				'/^[-—\s]{2,}$/sumx'									=> '<hr>',
 

@@ -183,18 +183,18 @@ module.exports = function (grunt) {
 			all: {
 				options: {
 					run: true,
-					urls: ['http://localhost:<%= connect.options.port %>/index.html']
+					urls: ['http://localhost:<%= connect.options.port %>/index.php']
 				}
 			}
 		},
 		useminPrepare: {
-			html: '<%= yeoman.app %>/index.html',
+			html: '<%= yeoman.app %>/index.tmpl',
 			options: {
 				dest: '<%= yeoman.dist %>'
 			}
 		},
 		usemin: {
-			html: ['<%= yeoman.dist %>/{,*/}*.html'],
+			html: ['<%= yeoman.dist %>/{,*/}*.tmpl'],
 			css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
 			options: {
 				dirs: ['<%= yeoman.dist %>'],
@@ -249,7 +249,7 @@ module.exports = function (grunt) {
 		copy: {
 			main: {
 				files: [
-					{expand: true, cwd: '<%= yeoman.app %>', src: ['index.php' , 'php.src/**', 'vendor/**', 'config/**', 'cache/**' ], dest: '<%= yeoman.dist %>'},
+					{expand: true, cwd: '<%= yeoman.app %>', src: ['index.php', 'index.tmpl', 'php.src/**', 'vendor/**', 'config/.restark.yml', 'cache/**' ], dest: '<%= yeoman.dist %>'},
 					{expand: true, cwd: 'vendor/history.js/scripts/bundled/html4+html5/', src: ['native.history.js' ], dest: '<%= yeoman.dist %>/scripts'}
 				]
 			},
@@ -374,7 +374,7 @@ module.exports = function (grunt) {
 	]);
 
 	grunt.registerTask('dist', [
-		'jshint',
+		/*'jshint',*/
 		'build',
 		'php:dist',
 	]);
