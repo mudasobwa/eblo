@@ -206,11 +206,11 @@ final class Cache {
 				$result[$i] = null;
 			}
 		}
-		for($i = -abs($steps); $i <= 0; $i++) {
+		for($i = -abs($steps) + 1; $i <= 0; $i++) {
 			if (is_null($result[$i])) {
 				continue;
 			}
-			array_key_exists($i - 1, $result) && (is_null($result[$i - 1])) ? reset($c) : next($c);
+			is_null($result[$i - 1]) ? reset($c) : next($c);
 		}
 		for($i = 1; $i <= abs($steps); $i++) {
 			$result[$i] = is_null(key($c)) ? null : next($c);
