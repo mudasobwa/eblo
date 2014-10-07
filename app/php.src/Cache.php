@@ -143,11 +143,12 @@ final class Cache {
 					file_exists($this->metadir() . trim($name)) ?
 						file_get_contents($this->metadir() . trim($name)) :
 						array_key_exists($name, $this->tags) ?
-								trim(`cd {$this->datadir()} && grep -Pazor '{$this->tags[$name]}' * | cut -d: -f1 | uniq | sort`) :
+								trim(`cd {$this->datadir()} && grep -Paor '{$this->tags[$name]}' * | cut -d: -f1 | uniq | sort`) :
 								''
 				);
-		$files = array_filter(scandir($this->datadir()), function($f) use ($name, $filter) {
-			return (empty($filter) || in_array($f, $filter)) && !is_dir($this->datadir() . $f);
+		$datadir = $this->datadir();
+		$files = array_filter(scandir($this->datadir()), function($f) use ($name, $filter, $datadir) {
+			return (empty($filter) || in_array($f, $filter)) && !is_dir($datadir . $f);
 		});
 		return (count($files) > 0 && usort($files, $this->config['data']['sorter'])) ?
 				$this->collections[$name] = $files : null;
@@ -262,7 +263,7 @@ final class Cache {
 		return $this->content[$name] = array(
 				'count' => 1,
 				'content' => $content,
-				'title' => preg_match('/A(.*)/mxu', $content, $m) ? $m[0] : ''
+				'title' => preg_match('/\A(.*)/mxu', $content, $m) ? $m[0] : ''
 		);
 	}
 
@@ -272,8 +273,9 @@ final class Cache {
 		}
 		$this->config		= $config;
 		$this->tags			= $this->config['tags'];
+		$metadir = $this->metadir();
 		$this->metas		= array_filter(
-				scandir($this->metadir()), function($f) { return !is_dir($this->metadir() . $f); }
+			scandir($this->metadir()), function($f) use ($metadir) { return !is_dir($metadir . $f); }
 		);
 		$this->collections	= array();
 		$this->content	= array();
@@ -285,7 +287,7 @@ final class Cache {
 
 	/** @todo SANITIZE */
 	public function search($kw) {
-		return explode("n", trim(`cd {$this->datadir()} && grep -Piazor '{$kw}' * | cut -d: -f1 | uniq | sort`));
+		return explode("n", trim(`cd {$this->datadir()} && grep -Piaor '{$kw}' * | cut -d: -f1 | uniq | sort`));
 	}
 
 }

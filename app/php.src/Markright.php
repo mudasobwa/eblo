@@ -10,7 +10,7 @@ class Markright
 
 	public function __construct($rules = NULL) {
 		$this->rules = file_exists($rules) ? \Spyc::YAMLLoad($rules) :
-			[
+			array(
 				'/(?<=\W)\*\*(.*?)\*\*(?=\W)/smxu'		=> '<strong>\1</strong>',
 				'/(?<=\W)\*(.*?)\*(?=\W)/smxu'				=> '<b>\1</b>',
 				'/(?<=\W)__(.*?)__(?=\W)/smxu'				=> '<em>\1</em>',
@@ -47,8 +47,7 @@ class Markright
 				'/^[-—\s]{2,}$/sumx'									=> '<hr>',
 
 						'/(\A|\R\R+)([—\p{L}\p{N}].*?)(?=\Z|\R\R+)/smxu' => '\1<p>\2</p>' // goes last
-
-			];
+			);
 	}
 
 	private function blockquotes($input) {
@@ -102,7 +101,8 @@ class Markright
 	}
 
 	public static function yo($input) {
-		return (new Markright)->parse($input);
+		$mr = new Markright();
+		return $mr->parse($input);
 	}
 
 }

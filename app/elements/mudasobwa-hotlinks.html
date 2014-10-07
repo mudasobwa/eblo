@@ -26,12 +26,16 @@
 							 on-core-response="{{ contentLoaded }}"
 							 handleAs="json">
 		</core-ajax>
-		<ul>
-			<li style="margin-left: -0.8em;">Неслучайные ссылки</li>
-			<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
-			<li><a href="http://rocket-science.ru">Rubies and Pearls</a></li>
-		</ul>
-		<ul id="randoms"></ul>
+		<aside>
+			<ul>
+				<li style="margin-left: -0.8em;">Неслучайные ссылки</li>
+				<li><a href="http://meme-me.ru">Фотографии из поездок</a></li>
+				<li><a href="http://rocket-science.ru">Rubies and Pearls</a></li>
+			</ul>
+		</aside>
+		<aside>
+			<ul id="randoms"></ul>
+		</aside>
 	</template>
 	<script>
 		Polymer('mudasobwa-hotlinks', {

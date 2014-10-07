@@ -1,5 +1,11 @@
 <?php
 
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_http_input('UTF-8');
+mb_language('uni');
+mb_regex_encoding('UTF-8');
+
 $filename = __DIR__.preg_replace('#(\?.*)$#', '', $_SERVER['REQUEST_URI']);
 if (php_sapi_name() === 'cli-server' && is_file($filename)) { // TODO
     return false;
@@ -32,7 +38,6 @@ $app->register(new \Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__.'/development.log',
 ));
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,7 +69,8 @@ function jsonFor($file, $collection) {
  */
 $app->get('/★/{collection}/{id}', function (Silex\Application $app, Request $req, $collection, $id) {
 	if(!$id) {
-		$id = Cache::instance()->collection($collection)[0];
+		$c = Cache::instance()->collection($collection);
+		$id = $c[0];
 	}
 	return new Response(
 			\preg_replace('/(<(?:link|script)\s+(?:rel="\w+"\s+)?(?:href|src)=")(?=\w)/', '\1/', // FIXME dist preparation hotfix
@@ -106,7 +112,8 @@ $app->get('/☆/{collection}/{id}/{len}/{offset}', function (Silex\Application $
 				return $fixed;
 			}, $data
 	);
-	return (new JsonResponse($result))->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+	$jr = new JsonResponse($result);
+	return $jr->setEncodingOptions(JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 })
 ->assert('collection', '\w+')
 ->assert('id', $app['restark.regex'])
@@ -148,9 +155,10 @@ $app->get('/∀/{count}', function (Silex\Application $app, Request $req, $count
 	$files = \array_slice($files, 0, $count);
 	return new JsonResponse(
 		\array_map(function ($elem) {
+			$c = Cache::instance()->content($elem);
 			return array(
 					'url'   => htmlFor($elem, null),
-					'title' => Cache::instance()->content($elem)['title']
+					'title' => $c['title']
 			);
 		}, $files)
 	);
@@ -163,7 +171,7 @@ $app->get('/∀/{count}', function (Silex\Application $app, Request $req, $count
 /* ================================================================================================ */
 
 /** Retrieves the content for the tag specified by redirecting to `/p/A+B+C` notation */
-$app->get('/rss', function (Silex\Application $app) {
+$app->get('/✍/', function (Silex\Application $app) {
 	if(!file_exists($app['restark.atomfile'])) {
 		$rss = new UniversalFeedCreator();
 		$rss->useCached();
@@ -195,7 +203,11 @@ $app->get('/rss', function (Silex\Application $app) {
 
 		$rss->saveFeed($app['restark.config']['settings']['rssformat'], $app['restark.atomfile']);
 	}
-	return $app->redirect($app['restark.atom']);
+	return Response::create(
+			file_get_contents($app['restark.atomfile']),
+			200,
+			array('Content-Type' => 'application/rss+xml; charset=utf-8')
+	);
 });
 
 /* ================================================================================================ */
@@ -206,8 +218,8 @@ $app->get('/rss', function (Silex\Application $app) {
 $app->get('/{collection}', function (Silex\Application $app, Request $req, $collection) {
 	return $app->redirect(htmlFor('', $collection));
 })
-		->assert('collection', '\w+')
-		->value('collection', '')
+->assert('collection', '\w+')
+->value('collection', '')
 ;
 
 

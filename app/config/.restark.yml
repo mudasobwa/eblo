@@ -6,7 +6,7 @@ template:
   regex            : '^(\d{4}(\-\d{1,2}){0,5}\+?)+$'
 
 settings :
-  debug            : 1
+  debug            : 0
   memos            : 5000
   rss              : 10
   rssformat        : 'RSS'
